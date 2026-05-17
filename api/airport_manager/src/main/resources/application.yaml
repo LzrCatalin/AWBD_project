@@ -1,0 +1,39 @@
+spring:
+  application:
+    name: airport_manager
+  datasource:
+    airport-manager:
+      driver-class-name: org.postgresql.Driver
+      jdbc-url: jdbc:postgresql://localhost:5432/airport-manager
+      username: airport-manager
+      password: airport-manager
+      auto-commit: false
+      minimum-idle: 5
+      maximum-pool-size: 10
+      max-lifetime: 1800000
+      connection-timeout: 20000
+  jpa:
+    airport-manager:
+      show-sql: true
+      database-platform: org.hibernate.dialect.PostgreSQLDialect
+      properties:
+        hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+        hibernate.integration.envers.enabled: true
+        org.hibernate.envers.default_schema: hist
+        org.hibernate.envers.audit_table_suffix: _hist
+  liquibase:
+    change-log: classpath:liquibase/changelog.xml
+    enabled: true
+
+security:
+  jwt:
+    secret: //todo
+    access-token-validity-in-seconds: 86400
+    refresh-token-validity-in-seconds: 604800
+  cors:
+    allowed-origins: http://localhost:4200,https://localhost:4443
+    allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
+    allowed-headers: "*"
+    exposed-headers: Authorization,Content-Type
+    allow-credentials: true
+    max-age: 3600
