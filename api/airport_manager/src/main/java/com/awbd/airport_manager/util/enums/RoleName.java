@@ -1,4 +1,4 @@
-package com.awbd.airport_manager.enums;
+package com.awbd.airport_manager.util.enums;
 
 public enum RoleName {
     ADMIN,
