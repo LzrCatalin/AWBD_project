@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
 
-    <includeAll path="liquibase/sql/" relativeToChangelogFile="false"/>
+    <include file="liquibase/sql/001_create_hist_schema.sql" relativeToChangelogFile="false" />
+    <include file="liquibase/sql/002_create_tables.sql" relativeToChangelogFile="false" />
 
 </databaseChangeLog>
