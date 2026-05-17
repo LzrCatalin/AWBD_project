@@ -1,7 +1,7 @@
 package com.awbd.airport_manager.model;
 
 import com.awbd.airport_manager.model.base.VersionedEntity;
-import com.awbd.airport_manager.enums.RoleName;
+import com.awbd.airport_manager.util.enums.RoleName;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
