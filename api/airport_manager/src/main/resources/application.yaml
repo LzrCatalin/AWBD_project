@@ -1,6 +1,7 @@
 spring:
   application:
     name: airport_manager
+
   datasource:
     airport-manager:
       driver-class-name: org.postgresql.Driver
@@ -12,6 +13,7 @@ spring:
       maximum-pool-size: 10
       max-lifetime: 1800000
       connection-timeout: 20000
+
   jpa:
     airport-manager:
       show-sql: true
@@ -21,15 +23,22 @@ spring:
         hibernate.integration.envers.enabled: true
         org.hibernate.envers.default_schema: hist
         org.hibernate.envers.audit_table_suffix: _hist
+
   liquibase:
     change-log: classpath:liquibase/changelog.xml
     enabled: true
 
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-htal0u21h014do50.us.auth0.com/
+          audiences: https://airport-manager-api   # API Identifier din Auth0
+
+auth0:
+  roles-namespace: https://airport-manager.com/roles  # claim-ul custom din Auth0 Action
+
 security:
-  jwt:
-    secret: //todo
-    access-token-validity-in-seconds: 86400
-    refresh-token-validity-in-seconds: 604800
   cors:
     allowed-origins: http://localhost:4200,https://localhost:4443
     allowed-methods: GET,POST,PUT,DELETE,PATCH,OPTIONS
