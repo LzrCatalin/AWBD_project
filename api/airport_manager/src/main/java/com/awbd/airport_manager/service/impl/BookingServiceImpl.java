@@ -9,12 +9,14 @@ import com.awbd.airport_manager.repository.BookingRepository;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.SeatRepository;
 import com.awbd.airport_manager.service.api.BookingService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,8 +30,11 @@ public class BookingServiceImpl implements BookingService {
     private final BookingMapper bookingMapper;
 
     @Override
-    public List<BookingDto> getAll() {
-        return bookingMapper.toList(bookingRepository.findAll());
+    public PagedResponse<BookingDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                bookingRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(bookingMapper::toDto)
+        );
     }
 
     @Override

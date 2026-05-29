@@ -8,11 +8,13 @@ import com.awbd.airport_manager.repository.AircraftRepository;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.GateRepository;
 import com.awbd.airport_manager.service.api.FlightService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -25,8 +27,11 @@ public class FlightServiceImpl implements FlightService {
     private final FlightMapper flightMapper;
 
     @Override
-    public List<FlightDto> getAll() {
-        return flightMapper.toList(flightRepository.findAll());
+    public PagedResponse<FlightDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                flightRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(flightMapper::toDto)
+        );
     }
 
     @Override

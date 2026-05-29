@@ -2,6 +2,8 @@ package com.awbd.airport_manager.controller;
 
 import com.awbd.airport_manager.dto.AircraftDto;
 import com.awbd.airport_manager.service.api.AircraftService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.awbd.airport_manager.util.enums.ApiPaths.Aircrafts;
@@ -21,10 +22,10 @@ public class AircraftController {
 
     private final AircraftService aircraftService;
 
-    @GetMapping
-    @Operation(summary = "Get all aircrafts")
-    public ResponseEntity<List<AircraftDto>> getAll() {
-        return ResponseEntity.ok(aircraftService.getAll());
+    @PostMapping("/search")
+    @Operation(summary = "Search aircrafts with filters, sorters and pagination")
+    public ResponseEntity<PagedResponse<AircraftDto>> search(@RequestBody SearchDTO searchDTO) {
+        return ResponseEntity.ok(aircraftService.search(searchDTO));
     }
 
     @GetMapping("/{id}")
