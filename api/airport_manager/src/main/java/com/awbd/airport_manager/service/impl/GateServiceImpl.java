@@ -6,11 +6,13 @@ import com.awbd.airport_manager.mapper.GateMapper;
 import com.awbd.airport_manager.model.Gate;
 import com.awbd.airport_manager.repository.GateRepository;
 import com.awbd.airport_manager.service.api.GateService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,8 +23,11 @@ public class GateServiceImpl implements GateService {
     private final GateMapper gateMapper;
 
     @Override
-    public List<GateDto> getAll() {
-        return gateMapper.toList(gateRepository.findAll());
+    public PagedResponse<GateDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                gateRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(gateMapper::toDto)
+        );
     }
 
     @Override

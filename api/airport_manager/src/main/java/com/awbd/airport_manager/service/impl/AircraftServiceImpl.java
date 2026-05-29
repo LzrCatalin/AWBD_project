@@ -6,11 +6,13 @@ import com.awbd.airport_manager.mapper.AircraftMapper;
 import com.awbd.airport_manager.model.Aircraft;
 import com.awbd.airport_manager.repository.AircraftRepository;
 import com.awbd.airport_manager.service.api.AircraftService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -21,8 +23,11 @@ public class AircraftServiceImpl implements AircraftService {
     private final AircraftMapper aircraftMapper;
 
     @Override
-    public List<AircraftDto> getAll() {
-        return aircraftMapper.toList(aircraftRepository.findAll());
+    public PagedResponse<AircraftDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                aircraftRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(aircraftMapper::toDto)
+        );
     }
 
     @Override

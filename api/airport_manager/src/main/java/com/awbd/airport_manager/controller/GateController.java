@@ -2,6 +2,8 @@ package com.awbd.airport_manager.controller;
 
 import com.awbd.airport_manager.dto.GateDto;
 import com.awbd.airport_manager.service.api.GateService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static com.awbd.airport_manager.util.enums.ApiPaths.Gates;
@@ -21,10 +22,10 @@ public class GateController {
 
     private final GateService gateService;
 
-    @GetMapping
-    @Operation(summary = "Get all gates")
-    public ResponseEntity<List<GateDto>> getAll() {
-        return ResponseEntity.ok(gateService.getAll());
+    @PostMapping("/search")
+    @Operation(summary = "Search gates with filters, sorters and pagination")
+    public ResponseEntity<PagedResponse<GateDto>> search(@RequestBody SearchDTO searchDTO) {
+        return ResponseEntity.ok(gateService.search(searchDTO));
     }
 
     @GetMapping("/{id}")

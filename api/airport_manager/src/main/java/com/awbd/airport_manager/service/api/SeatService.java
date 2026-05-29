@@ -1,13 +1,14 @@
 package com.awbd.airport_manager.service.api;
 
 import com.awbd.airport_manager.dto.SeatDto;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface SeatService {
 
-    List<SeatDto> getAll();
+    PagedResponse<SeatDto> search(SearchDTO searchDTO);
 
     SeatDto getById(UUID id);
 

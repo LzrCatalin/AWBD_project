@@ -7,11 +7,13 @@ import com.awbd.airport_manager.model.Seat;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.SeatRepository;
 import com.awbd.airport_manager.service.api.SeatService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -23,8 +25,11 @@ public class SeatServiceImpl implements SeatService {
     private final SeatMapper seatMapper;
 
     @Override
-    public List<SeatDto> getAll() {
-        return seatMapper.toList(seatRepository.findAll());
+    public PagedResponse<SeatDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                seatRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(seatMapper::toDto)
+        );
     }
 
     @Override
