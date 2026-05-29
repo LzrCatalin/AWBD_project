@@ -1,0 +1,12 @@
+name: airport-manager-postgres
+
+services:
+  postgres:
+    image: postgres:18.1-alpine
+    container_name: airport-manager-postgres
+    environment:
+      POSTGRES_DB: airport-manager
+      POSTGRES_USER: airport-manager
+      POSTGRES_PASSWORD: airport-manager
+    ports:
+      - "5432:5432"
