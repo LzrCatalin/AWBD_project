@@ -1,0 +1,20 @@
+@if (auth.user$ | async; as user) {
+  <div class="home-container">
+    <div class="home-card">
+      <p-avatar
+        [image]="user.picture"
+        size="xlarge"
+        shape="circle"
+      />
+      <h2>Welcome, {{ user.name }}</h2>
+      <p>{{ user.email }}</p>
+      <p-button
+        label="Sign out"
+        icon="pi pi-sign-out"
+        [outlined]="true"
+        severity="secondary"
+        (onClick)="logout()"
+      />
+    </div>
+  </div>
+}
