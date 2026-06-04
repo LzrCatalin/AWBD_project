@@ -3,11 +3,11 @@ spring:
     name: airport_manager
 
   datasource:
-    airport-manager:
-      driver-class-name: org.postgresql.Driver
-      jdbc-url: jdbc:postgresql://localhost:5432/airport-manager
-      username: airport-manager
-      password: airport-manager
+    url: jdbc:postgresql://localhost:5432/airport-manager
+    username: airport-manager
+    password: airport-manager
+    driver-class-name: org.postgresql.Driver
+    hikari:
       auto-commit: false
       minimum-idle: 5
       maximum-pool-size: 10
@@ -32,11 +32,11 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-htal0u21h014do50.us.auth0.com/
-          audiences: https://airport-manager-api   # API Identifier din Auth0
+          issuer-uri: https://dev-****.eu.auth0.com/
+          audiences: https://airport-manager-api
 
 auth0:
-  roles-namespace: https://airport-manager.com/roles  # claim-ul custom din Auth0 Action
+  roles-namespace: https://airport-manager.com/roles
 
 security:
   cors:
