@@ -8,6 +8,12 @@ export const routes: Routes = [
       import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'dashboard',
+    canActivate: [AuthGuard],
+    loadComponent: () =>
+      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+  },
+  {
     path: '',
     loadComponent: () =>
       import('./layout/shell/shell.component').then((m) => m.ShellComponent),

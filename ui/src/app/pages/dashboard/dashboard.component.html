@@ -1,40 +1,77 @@
-<div class="dashboard-page">
+<div class="dashboard-layout">
 
-  @if (auth.user$ | async; as user) {
-    <div class="welcome-section">
-      <h1>Welcome back, {{ user.given_name ?? user.name }} 👋</h1>
-      <p>Here's an overview of your airport operations.</p>
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="brand">
+      <i class="pi pi-send brand-icon"></i>
+      <span class="brand-name">Airport Manager</span>
     </div>
-  }
 
-  <p-divider />
-
-  <section class="stats-grid">
-    @for (stat of stats; track stat.label) {
-      <div class="stat-card" [class]="stat.colorClass">
-        <div class="stat-icon">
-          <i [class]="stat.icon"></i>
-        </div>
-        <div class="stat-info">
-          <span class="stat-value">{{ stat.value }}</span>
-          <span class="stat-label">{{ stat.label }}</span>
-        </div>
+    @if (auth.user$ | async; as user) {
+      <div class="user-section">
+        <span class="user-name hidden md:block">{{ user.name }}</span>
+        <p-avatar
+          [image]="user.picture"
+          shape="circle"
+          size="normal"
+        />
+        <p-button
+          icon="pi pi-sign-out"
+          [rounded]="true"
+          [text]="true"
+          severity="secondary"
+          pTooltip="Sign out"
+          (onClick)="logout()"
+        />
       </div>
     }
-  </section>
+  </header>
 
-  <section class="quick-actions-section">
-    <h2>Quick Access</h2>
-    <div class="quick-actions-grid">
-      @for (action of quickActions; track action.label) {
-        <p-card styleClass="action-card" (click)="navigate(action.route)">
-          <div class="action-content">
-            <i [class]="action.icon + ' action-icon'"></i>
-            <span>{{ action.label }}</span>
+  <!-- Main content -->
+  <main class="content">
+
+    <!-- Welcome -->
+    @if (auth.user$ | async; as user) {
+      <div class="welcome-section">
+        <h1>Welcome back, {{ user.given_name ?? user.name }} 👋</h1>
+        <p>Here's an overview of your airport operations.</p>
+      </div>
+    }
+
+    <p-divider />
+
+    <!-- Stats -->
+    <section class="stats-grid">
+      @for (stat of stats; track stat.label) {
+        <div class="stat-card" [class]="stat.colorClass">
+          <div class="stat-icon">
+            <i [class]="stat.icon"></i>
           </div>
-        </p-card>
+          <div class="stat-info">
+            <span class="stat-value">{{ stat.value }}</span>
+            <span class="stat-label">{{ stat.label }}</span>
+          </div>
+        </div>
       }
-    </div>
-  </section>
+    </section>
 
+    <!-- Quick actions -->
+    <section class="quick-actions-section">
+      <h2>Quick Access</h2>
+      <div class="quick-actions-grid">
+        @for (action of quickActions; track action.label) {
+          <p-card
+            styleClass="action-card"
+            (click)="navigate(action.route)"
+          >
+            <div class="action-content">
+              <i [class]="action.icon + ' action-icon'"></i>
+              <span>{{ action.label }}</span>
+            </div>
+          </p-card>
+        }
+      </div>
+    </section>
+
+  </main>
 </div>
