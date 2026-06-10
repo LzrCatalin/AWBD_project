@@ -9,8 +9,36 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'login',
-    pathMatch: 'full',
+    loadComponent: () =>
+      import('./layout/shell/shell.component').then((m) => m.ShellComponent),
+    canActivate: [AuthGuard],
+    children: [
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+      },
+      {
+        path: 'flights',
+        loadComponent: () =>
+          import('./pages/flights/flights.component').then((m) => m.FlightsComponent),
+      },
+      {
+        path: 'aircraft',
+        loadComponent: () =>
+          import('./pages/aircraft/aircraft.component').then((m) => m.AircraftComponent),
+      },
+      {
+        path: 'gates',
+        loadComponent: () =>
+          import('./pages/gates/gates.component').then((m) => m.GatesComponent),
+      },
+      {
+        path: '',
+        redirectTo: 'dashboard',
+        pathMatch: 'full',
+      },
+    ],
   },
   {
     path: '**',

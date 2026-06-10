@@ -1,0 +1,83 @@
+<div class="page">
+
+  <p-toast />
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h1>Gates</h1>
+      <p>Manage airport gates</p>
+    </div>
+    <p-button label="New Gate" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Gate No.</label>
+      <input pInputText [(ngModel)]="searchGateNo" placeholder="e.g. A1" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-field">
+      <label>Terminal</label>
+      <input pInputText [(ngModel)]="searchTerminal" placeholder="e.g. Terminal 2" (keyup.enter)="onSearch()" />
+    </div>
+    <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
+  </div>
+
+  <p-table
+    [value]="gates()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    (onLazyLoad)="loadGates($event)"
+    styleClass="p-datatable-gridlines"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="gateNo">Gate No. <p-sortIcon field="gateNo" /></th>
+        <th pSortableColumn="terminal">Terminal <p-sortIcon field="terminal" /></th>
+        <th style="width:100px">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-gate>
+      <tr>
+        <td><strong>{{ gate.gateNo }}</strong></td>
+        <td>{{ gate.terminal || '—' }}</td>
+        <td>
+          <div class="row-actions">
+            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+              pTooltip="Edit" (onClick)="openEdit(gate)" />
+            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+              pTooltip="Delete" (onClick)="confirmDelete(gate)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="3" class="empty-msg">No gates found.</td></tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="dialogTitle" [modal]="true" [style]="{ width: '380px' }" [draggable]="false">
+  <div class="dialog-form">
+    <div class="form-row">
+      <label>Gate No. *</label>
+      <input pInputText [(ngModel)]="form.gateNo" placeholder="e.g. A1" />
+    </div>
+    <div class="form-row">
+      <label>Terminal</label>
+      <input pInputText [(ngModel)]="form.terminal" placeholder="e.g. Terminal 1" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

@@ -1,0 +1,161 @@
+<div class="page">
+
+  <p-toast />
+  <p-confirmdialog />
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1>Flights</h1>
+      <p>Manage all airport flights</p>
+    </div>
+    <p-button label="New Flight" icon="pi pi-plus" (onClick)="openCreate()" />
+  </div>
+
+  <!-- Search bar -->
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Flight No.</label>
+      <input pInputText [(ngModel)]="searchFlightNo" placeholder="e.g. RO123" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-field">
+      <label>From</label>
+      <input pInputText [(ngModel)]="searchFrom" placeholder="Departure city" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-field">
+      <label>To</label>
+      <input pInputText [(ngModel)]="searchTo" placeholder="Arrival city" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-actions">
+      <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
+      <p-button icon="pi pi-times" [text]="true" severity="secondary" pTooltip="Clear" (onClick)="clearSearch()" />
+    </div>
+  </div>
+
+  <!-- Table -->
+  <p-table
+    [value]="flights()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    [sortField]="lastSortField"
+    [sortOrder]="lastSortOrder"
+    (onLazyLoad)="loadFlights($event)"
+    styleClass="p-datatable-gridlines"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="flightNo">Flight No <p-sortIcon field="flightNo" /></th>
+        <th pSortableColumn="departureCity">From <p-sortIcon field="departureCity" /></th>
+        <th pSortableColumn="arrivalCity">To <p-sortIcon field="arrivalCity" /></th>
+        <th pSortableColumn="departureTime">Departure <p-sortIcon field="departureTime" /></th>
+        <th pSortableColumn="arrivalTime">Arrival <p-sortIcon field="arrivalTime" /></th>
+        <th>Aircraft</th>
+        <th>Gate</th>
+        <th style="width:100px">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-flight>
+      <tr>
+        <td><p-tag [value]="flight.flightNo" severity="info" /></td>
+        <td>{{ flight.departureCity }}</td>
+        <td>{{ flight.arrivalCity }}</td>
+        <td>{{ formatDateTime(flight.departureTime) }}</td>
+        <td>{{ formatDateTime(flight.arrivalTime) }}</td>
+        <td class="text-sm">{{ aircraftLabel(flight.aircraftId) }}</td>
+        <td>{{ gateLabel(flight.gateId) }}</td>
+        <td>
+          <div class="row-actions">
+            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+              pTooltip="Edit" (onClick)="openEdit(flight)" />
+            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+              pTooltip="Delete" (onClick)="confirmDelete(flight)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8" class="empty-msg">No flights found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- Create / Edit Dialog -->
+<p-dialog
+  [(visible)]="dialogVisible"
+  [header]="dialogTitle"
+  [modal]="true"
+  [style]="{ width: '520px' }"
+  [draggable]="false"
+>
+  <div class="dialog-form">
+
+    <div class="form-row">
+      <label>Flight No. *</label>
+      <input pInputText [(ngModel)]="form.flightNo" placeholder="e.g. RO123" />
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Departure City *</label>
+        <input pInputText [(ngModel)]="form.departureCity" placeholder="City" />
+      </div>
+      <div class="form-row">
+        <label>Arrival City *</label>
+        <input pInputText [(ngModel)]="form.arrivalCity" placeholder="City" />
+      </div>
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Departure Time *</label>
+        <p-datepicker [(ngModel)]="form.departureTime" [showTime]="true" [showSeconds]="false"
+          dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full" />
+      </div>
+      <div class="form-row">
+        <label>Arrival Time *</label>
+        <p-datepicker [(ngModel)]="form.arrivalTime" [showTime]="true" [showSeconds]="false"
+          dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Aircraft *</label>
+      <p-select
+        [(ngModel)]="form.aircraftId"
+        [options]="aircraftOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select aircraft"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="form-row">
+      <label>Gate</label>
+      <p-select
+        [(ngModel)]="form.gateId"
+        [options]="gateOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="No gate"
+        styleClass="w-full"
+      />
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+  </ng-template>
+</p-dialog>
