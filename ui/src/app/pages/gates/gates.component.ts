@@ -10,6 +10,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { GateService } from '../../core/services/gate.service';
+import { RoleService } from '../../core/services/role.service';
 import { Gate, GateForm } from '../../shared/models/gate.model';
 import { SearchDTO } from '../../shared/models/search.model';
 import { Pagination } from '../../shared/models/pagination.model';
@@ -25,6 +26,7 @@ export class GatesComponent {
   private gateService = inject(GateService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  protected roles = inject(RoleService);
 
   gates = signal<Gate[]>([]);
   totalRecords = signal(0);

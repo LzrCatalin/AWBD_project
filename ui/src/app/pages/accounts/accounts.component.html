@@ -1,0 +1,123 @@
+<div class="page">
+
+  <p-toast />
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h1>Accounts</h1>
+      <p>Manage user accounts</p>
+    </div>
+    @if (roles.adminOnly()) {
+      <p-button label="New Account" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
+  </div>
+
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Email</label>
+      <input pInputText [(ngModel)]="searchEmail" placeholder="email@example.com" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-field">
+      <label>First Name</label>
+      <input pInputText [(ngModel)]="searchFirstName" placeholder="John" (keyup.enter)="onSearch()" />
+    </div>
+    <div class="search-field">
+      <label>Last Name</label>
+      <input pInputText [(ngModel)]="searchLastName" placeholder="Doe" (keyup.enter)="onSearch()" />
+    </div>
+    <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
+  </div>
+
+  <p-table
+    [value]="accounts()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    (onLazyLoad)="loadAccounts($event)"
+    styleClass="p-datatable-gridlines"
+    [tableStyle]="{ 'min-width': '55rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="lastName">Name <p-sortIcon field="lastName" /></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+        <th pSortableColumn="passportNo">Passport <p-sortIcon field="passportNo" /></th>
+        <th>Roles</th>
+        @if (roles.adminOnly()) { <th style="width:100px">Actions</th> }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-account>
+      <tr>
+        <td><strong>{{ account.lastName }}, {{ account.firstName }}</strong></td>
+        <td>{{ account.email }}</td>
+        <td class="text-mono">{{ account.passportNo }}</td>
+        <td>
+          <div class="role-tags">
+            @for (role of account.roles; track role) {
+              <p-tag [value]="roleLabel(role)" [severity]="roleSeverity(role)" />
+            }
+            @if (!account.roles?.length) { <span class="text-muted">—</span> }
+          </div>
+        </td>
+        @if (roles.adminOnly()) {
+          <td>
+            <div class="row-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                pTooltip="Edit" (onClick)="openEdit(account)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                pTooltip="Delete" (onClick)="confirmDelete(account)" />
+            </div>
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="empty-msg">No accounts found.</td></tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="dialogTitle" [modal]="true" [style]="{ width: '460px' }" [draggable]="false">
+  <div class="dialog-form">
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>First Name *</label>
+        <input pInputText [(ngModel)]="form.firstName" placeholder="John" />
+      </div>
+      <div class="form-row">
+        <label>Last Name *</label>
+        <input pInputText [(ngModel)]="form.lastName" placeholder="Doe" />
+      </div>
+    </div>
+
+    <div class="form-row">
+      <label>Email *</label>
+      <input pInputText [(ngModel)]="form.email" placeholder="john@example.com" type="email" />
+    </div>
+
+    <div class="form-row">
+      <label>{{ editingId ? 'New Password' : 'Password *' }}</label>
+      <p-password [(ngModel)]="form.password" [feedback]="true" [toggleMask]="true" styleClass="w-full"
+        [placeholder]="editingId ? 'Leave empty to keep current' : 'Enter password'" />
+    </div>
+
+    <div class="form-row">
+      <label>Passport No. *</label>
+      <input pInputText [(ngModel)]="form.passportNo" placeholder="AB1234567" />
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

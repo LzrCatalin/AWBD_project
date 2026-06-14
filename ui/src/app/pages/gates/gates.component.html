@@ -8,7 +8,9 @@
       <h1>Gates</h1>
       <p>Manage airport gates</p>
     </div>
-    <p-button label="New Gate" icon="pi pi-plus" (onClick)="openCreate()" />
+    @if (roles.canManage()) {
+      <p-button label="New Gate" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
   </div>
 
   <div class="search-bar">
@@ -38,7 +40,7 @@
       <tr>
         <th pSortableColumn="gateNo">Gate No. <p-sortIcon field="gateNo" /></th>
         <th pSortableColumn="terminal">Terminal <p-sortIcon field="terminal" /></th>
-        <th style="width:100px">Actions</th>
+        @if (roles.canManage()) { <th style="width:100px">Actions</th> }
       </tr>
     </ng-template>
 
@@ -46,14 +48,16 @@
       <tr>
         <td><strong>{{ gate.gateNo }}</strong></td>
         <td>{{ gate.terminal || '—' }}</td>
-        <td>
-          <div class="row-actions">
-            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
-              pTooltip="Edit" (onClick)="openEdit(gate)" />
-            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-              pTooltip="Delete" (onClick)="confirmDelete(gate)" />
-          </div>
-        </td>
+        @if (roles.canManage()) {
+          <td>
+            <div class="row-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                pTooltip="Edit" (onClick)="openEdit(gate)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                pTooltip="Delete" (onClick)="confirmDelete(gate)" />
+            </div>
+          </td>
+        }
       </tr>
     </ng-template>
 

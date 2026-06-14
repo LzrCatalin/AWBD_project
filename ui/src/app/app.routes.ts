@@ -8,12 +8,6 @@ export const routes: Routes = [
       import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
-    path: 'dashboard',
-    canActivate: [AuthGuard],
-    loadComponent: () =>
-      import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-  },
-  {
     path: '',
     loadComponent: () =>
       import('./layout/shell/shell.component').then((m) => m.ShellComponent),
@@ -38,6 +32,21 @@ export const routes: Routes = [
         path: 'gates',
         loadComponent: () =>
           import('./pages/gates/gates.component').then((m) => m.GatesComponent),
+      },
+      {
+        path: 'seats',
+        loadComponent: () =>
+          import('./pages/seats/seats.component').then((m) => m.SeatsComponent),
+      },
+      {
+        path: 'bookings',
+        loadComponent: () =>
+          import('./pages/bookings/bookings.component').then((m) => m.BookingsComponent),
+      },
+      {
+        path: 'accounts',
+        loadComponent: () =>
+          import('./pages/accounts/accounts.component').then((m) => m.AccountsComponent),
       },
       {
         path: '',

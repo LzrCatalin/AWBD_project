@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 
 import { AircraftService } from '../../core/services/aircraft.service';
+import { RoleService } from '../../core/services/role.service';
 import { Aircraft, AircraftForm } from '../../shared/models/aircraft.model';
 import { SearchDTO } from '../../shared/models/search.model';
 import { Pagination } from '../../shared/models/pagination.model';
@@ -26,6 +27,7 @@ export class AircraftComponent {
   private aircraftService = inject(AircraftService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  protected roles = inject(RoleService);
 
   aircrafts = signal<Aircraft[]>([]);
   totalRecords = signal(0);

@@ -8,7 +8,9 @@
       <h1>Aircraft</h1>
       <p>Manage fleet</p>
     </div>
-    <p-button label="New Aircraft" icon="pi pi-plus" (onClick)="openCreate()" />
+    @if (roles.adminOnly()) {
+      <p-button label="New Aircraft" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
   </div>
 
   <div class="search-bar">
@@ -35,7 +37,7 @@
         <th pSortableColumn="model">Model <p-sortIcon field="model" /></th>
         <th pSortableColumn="planeNo">Plane No. <p-sortIcon field="planeNo" /></th>
         <th pSortableColumn="capacity">Capacity <p-sortIcon field="capacity" /></th>
-        <th style="width:100px">Actions</th>
+        @if (roles.adminOnly()) { <th style="width:100px">Actions</th> }
       </tr>
     </ng-template>
 
@@ -44,14 +46,16 @@
         <td><strong>{{ aircraft.model }}</strong></td>
         <td>{{ aircraft.planeNo }}</td>
         <td>{{ aircraft.capacity }} seats</td>
-        <td>
-          <div class="row-actions">
-            <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
-              pTooltip="Edit" (onClick)="openEdit(aircraft)" />
-            <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-              pTooltip="Delete" (onClick)="confirmDelete(aircraft)" />
-          </div>
-        </td>
+        @if (roles.adminOnly()) {
+          <td>
+            <div class="row-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                pTooltip="Edit" (onClick)="openEdit(aircraft)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                pTooltip="Delete" (onClick)="confirmDelete(aircraft)" />
+            </div>
+          </td>
+        }
       </tr>
     </ng-template>
 

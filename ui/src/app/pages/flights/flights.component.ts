@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { FlightService } from '../../core/services/flight.service';
 import { AircraftService } from '../../core/services/aircraft.service';
 import { GateService } from '../../core/services/gate.service';
+import { RoleService } from '../../core/services/role.service';
 import { Flight, FlightForm } from '../../shared/models/flight.model';
 import { Aircraft } from '../../shared/models/aircraft.model';
 import { Gate } from '../../shared/models/gate.model';
@@ -45,6 +46,7 @@ export class FlightsComponent implements OnInit {
   private gateService = inject(GateService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  protected roles = inject(RoleService);
 
   flights = signal<Flight[]>([]);
   totalRecords = signal(0);
