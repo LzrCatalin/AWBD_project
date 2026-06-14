@@ -6,6 +6,9 @@ import com.awbd.airport_manager.mapper.AccountMapper;
 import com.awbd.airport_manager.model.Account;
 import com.awbd.airport_manager.repository.AccountRepository;
 import com.awbd.airport_manager.service.api.AccountService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,6 +28,15 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public List<AccountDto> getAll() {
         return accountMapper.toList(accountRepository.findAll());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<AccountDto> search(SearchDTO searchDTO) {
+        return new PagedResponse<>(
+                accountRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
+                        .map(accountMapper::toDto)
+        );
     }
 
     @Override

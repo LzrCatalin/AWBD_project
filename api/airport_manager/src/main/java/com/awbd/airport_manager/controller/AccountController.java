@@ -2,6 +2,8 @@ package com.awbd.airport_manager.controller;
 
 import com.awbd.airport_manager.dto.AccountDto;
 import com.awbd.airport_manager.service.api.AccountService;
+import com.awbd.airport_manager.util.pagination.PagedResponse;
+import com.awbd.airport_manager.util.search.dto.SearchDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,12 @@ public class AccountController {
     @Operation(summary = "Get all accounts")
     public ResponseEntity<List<AccountDto>> getAll() {
         return ResponseEntity.ok(accountService.getAll());
+    }
+
+    @PostMapping("/search")
+    @Operation(summary = "Search accounts with filters and pagination")
+    public ResponseEntity<PagedResponse<AccountDto>> search(@RequestBody SearchDTO searchDTO) {
+        return ResponseEntity.ok(accountService.search(searchDTO));
     }
 
     @GetMapping("/{id}")

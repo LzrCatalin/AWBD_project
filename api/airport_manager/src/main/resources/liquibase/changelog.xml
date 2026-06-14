@@ -8,5 +8,6 @@
     <include file="liquibase/sql/001_create_hist_schema.sql" relativeToChangelogFile="false" />
     <include file="liquibase/sql/002_create_tables.sql" relativeToChangelogFile="false" />
     <include file="liquibase/sql/003_seed_roles.sql" relativeToChangelogFile="false" />
+    <include file="liquibase/sql/004_seed_data.sql" relativeToChangelogFile="false" />
 
 </databaseChangeLog>
