@@ -6,7 +6,6 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationToken;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -20,12 +19,20 @@ public class Auth0JwtConverter implements Converter<Jwt, AbstractAuthenticationT
 
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
-        Collection<GrantedAuthority> authorities = extractRoles(jwt);
-        return new JwtAuthenticationToken(jwt, authorities, jwt.getSubject());
+        List<String> rawRoles = jwt.getClaimAsStringList(rolesNamespace);
+        Collection<GrantedAuthority> authorities = toAuthorities(rawRoles);
+
+        UserInfo userInfo = new UserInfo(
+                jwt.getSubject(),
+                jwt.getClaimAsString("email"),
+                rawRoles,
+                authorities
+        );
+
+        return new UserInfoAuthenticationToken(userInfo, jwt);
     }
 
-    private Collection<GrantedAuthority> extractRoles(Jwt jwt) {
-        List<String> roles = jwt.getClaimAsStringList(rolesNamespace);
+    private Collection<GrantedAuthority> toAuthorities(List<String> roles) {
         if (roles == null) return List.of();
         return roles.stream()
                 .map(role -> (GrantedAuthority) new SimpleGrantedAuthority("ROLE_" + role))
