@@ -20,4 +20,6 @@ public interface AccountService {
     AccountDto update(UUID id, AccountDto dto);
 
     void delete(UUID id);
+
+    AccountDto getByEmail(String email);
 }

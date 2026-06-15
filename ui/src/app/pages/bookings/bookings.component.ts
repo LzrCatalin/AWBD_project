@@ -1,40 +1,43 @@
-import { Component, inject, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {DialogModule} from 'primeng/dialog';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ToastModule} from 'primeng/toast';
+import {TagModule} from 'primeng/tag';
+import {SelectModule} from 'primeng/select';
+import {TooltipModule} from 'primeng/tooltip';
+import {AsyncPipe} from '@angular/common';
+import {AuthService} from '@auth0/auth0-angular';
 
-import { BookingService } from '../../core/services/booking.service';
-import { FlightService } from '../../core/services/flight.service';
-import { SeatService } from '../../core/services/seat.service';
-import { RoleService } from '../../core/services/role.service';
-import { Booking, BookingForm } from '../../shared/models/booking.model';
-import { SearchDTO } from '../../shared/models/search.model';
-import { Pagination } from '../../shared/models/pagination.model';
+import {BookingService} from '../../core/services/booking.service';
+import {FlightService} from '../../core/services/flight.service';
+import {SeatService} from '../../core/services/seat.service';
+import {RoleService} from '../../core/services/role.service';
+import {Booking, BookingForm} from '../../shared/models/booking.model';
+import {SearchDTO} from '../../shared/models/search.model';
+import {Pagination} from '../../shared/models/pagination.model';
 
 type SelectOption = { label: string; value: string };
 
 @Component({
   selector: 'app-bookings',
   imports: [FormsModule, TableModule, ButtonModule, InputTextModule, DialogModule,
-            ConfirmDialogModule, ToastModule, TagModule, SelectModule, TooltipModule],
+    ConfirmDialogModule, ToastModule, TagModule, SelectModule, TooltipModule, AsyncPipe],
   templateUrl: './bookings.component.html',
   styleUrl: './bookings.component.scss',
 })
-export class BookingsComponent {
+export class BookingsComponent implements OnInit {
   private bookingService = inject(BookingService);
   private flightService = inject(FlightService);
   private seatService = inject(SeatService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   protected roles = inject(RoleService);
+  protected auth = inject(AuthService);
 
   bookings = signal<Booking[]>([]);
   totalRecords = signal(0);
@@ -50,27 +53,22 @@ export class BookingsComponent {
   form: BookingForm = this.emptyForm();
 
   flightOptions: SelectOption[] = [];
-  seatOptions  = signal<SelectOption[]>([]);
+  seatOptions = signal<SelectOption[]>([]);
   loadingSeats = signal(false);
-
-  // Labels cache for table display
-  private flightMap = new Map<string, string>();
-  private seatMap   = new Map<string, string>();
 
   ngOnInit(): void {
     this.flightService
-      .search(new SearchDTO({ pagination: new Pagination({ page: 0, pageSize: 100 }) }))
+      .search(new SearchDTO({pagination: new Pagination({page: 0, pageSize: 100})}))
       .subscribe(res => {
         this.flightOptions = res.items.map(f => ({
           label: `${f.flightNo} — ${f.departureCity} → ${f.arrivalCity}`,
           value: f.id,
         }));
-        res.items.forEach(f => this.flightMap.set(f.id, `${f.flightNo} (${f.departureCity} → ${f.arrivalCity})`));
       });
   }
 
   private emptyForm(): BookingForm {
-    return { flightId: '', accountId: '', seatId: '' };
+    return {flightId: '', seatId: ''};
   }
 
   onFlightSelected(): void {
@@ -81,10 +79,10 @@ export class BookingsComponent {
     this.loadingSeats.set(true);
     const query = new SearchDTO({
       filters: [
-        { field: 'flight.id', type: 'EQ', value: this.form.flightId },
-        { field: 'available', type: 'EQ', value: true },
+        {field: 'flight.id', type: 'EQ', value: this.form.flightId},
+        {field: 'isAvailable', type: 'EQ', value: true},
       ],
-      pagination: new Pagination({ page: 0, pageSize: 200 }),
+      pagination: new Pagination({page: 0, pageSize: 200}),
     });
 
     this.seatService.search(query).subscribe({
@@ -93,7 +91,6 @@ export class BookingsComponent {
           label: `${s.seatNo} — ${s.type || 'Economy'}`,
           value: s.id,
         })));
-        res.items.forEach(s => this.seatMap.set(s.id, s.seatNo));
         this.loadingSeats.set(false);
       },
       error: () => this.loadingSeats.set(false),
@@ -113,12 +110,12 @@ export class BookingsComponent {
     this.loading.set(true);
 
     const filters = [];
-    if (this.filterFlightId) filters.push({ field: 'flight.id', type: 'EQ' as const, value: this.filterFlightId });
+    if (this.filterFlightId) filters.push({field: 'flight.id', type: 'EQ' as const, value: this.filterFlightId});
 
     const query = new SearchDTO({
       filters,
-      sorters: [{ field: this.lastSortField, direction: this.lastSortOrder === 1 ? 'ASC' : 'DESC' }],
-      pagination: new Pagination({ page: this.currentPage, pageSize: this.pageSize }),
+      sorters: [{field: this.lastSortField, direction: this.lastSortOrder === 1 ? 'ASC' : 'DESC'}],
+      pagination: new Pagination({page: this.currentPage, pageSize: this.pageSize}),
     });
 
     this.bookingService.search(query).subscribe({
@@ -129,7 +126,7 @@ export class BookingsComponent {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load bookings' });
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load bookings'});
       },
     });
   }
@@ -149,11 +146,11 @@ export class BookingsComponent {
     this.bookingService.create(this.form).subscribe({
       next: (b) => {
         this.dialogVisible = false;
-        this.messageService.add({ severity: 'success', summary: 'Booked', detail: `Booking ${b.bookingNo} created` });
+        this.messageService.add({severity: 'success', summary: 'Booked', detail: `Booking #${b.bookingNo} created`});
         this.loadBookings();
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not create booking' });
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not create booking'});
       },
     });
   }
@@ -167,23 +164,19 @@ export class BookingsComponent {
       accept: () => {
         this.bookingService.delete(booking.id).subscribe({
           next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Cancelled', detail: `Booking ${booking.bookingNo} cancelled` });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Cancelled',
+              detail: `Booking ${booking.bookingNo} cancelled`
+            });
             this.loadBookings();
           },
           error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not cancel booking' });
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not cancel booking'});
           },
         });
       },
     });
-  }
-
-  flightLabel(id: string): string {
-    return this.flightMap.get(id) ?? id;
-  }
-
-  seatLabel(id: string): string {
-    return this.seatMap.get(id) ?? id;
   }
 
   formatDate(dt: string): string {

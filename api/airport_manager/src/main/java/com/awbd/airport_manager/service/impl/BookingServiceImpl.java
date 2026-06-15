@@ -11,6 +11,8 @@ import com.awbd.airport_manager.repository.SeatRepository;
 import com.awbd.airport_manager.service.api.BookingService;
 import com.awbd.airport_manager.util.pagination.PagedResponse;
 import com.awbd.airport_manager.util.search.dto.SearchDTO;
+import com.awbd.airport_manager.util.search.enums.FilterOperation;
+import com.awbd.airport_manager.util.security.SecurityUtils;
 import com.awbd.airport_manager.util.spec.QuerySpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,10 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     public PagedResponse<BookingDto> search(SearchDTO searchDTO) {
+        if (!SecurityUtils.hasAnyRole("ROLE_ADMIN", "ROLE_STAFF")) {
+            String email = SecurityUtils.getCurrentUserInfo().getEmail();
+            searchDTO.addFilter("account.email", FilterOperation.EQ, email);
+        }
         return new PagedResponse<>(
                 bookingRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
                         .map(bookingMapper::toDto)
@@ -52,8 +58,9 @@ public class BookingServiceImpl implements BookingService {
         booking.setFlight(flightRepository.findById(dto.getFlightId())
                 .orElseThrow(() -> new ResourceNotFoundException("Flight", dto.getFlightId())));
 
-        booking.setAccount(accountRepository.findById(dto.getAccountId())
-                .orElseThrow(() -> new ResourceNotFoundException("Account", dto.getAccountId())));
+        String email = SecurityUtils.getCurrentUserInfo().getEmail();
+        booking.setAccount(accountRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("Account", email)));
 
         booking.setSeat(seatRepository.findById(dto.getSeatId())
                 .orElseThrow(() -> new ResourceNotFoundException("Seat", dto.getSeatId())));

@@ -1,26 +1,28 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { MessageService, ConfirmationService } from 'primeng/api';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { DialogModule } from 'primeng/dialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
-import { TagModule } from 'primeng/tag';
-import { DatePickerModule } from 'primeng/datepicker';
-import { SelectModule } from 'primeng/select';
-import { TooltipModule } from 'primeng/tooltip';
+import {Component, inject, OnInit, signal} from '@angular/core';
+import {FormsModule} from '@angular/forms';
+import {ConfirmationService, MessageService} from 'primeng/api';
+import {TableLazyLoadEvent, TableModule} from 'primeng/table';
+import {ButtonModule} from 'primeng/button';
+import {InputTextModule} from 'primeng/inputtext';
+import {DialogModule} from 'primeng/dialog';
+import {ConfirmDialogModule} from 'primeng/confirmdialog';
+import {ToastModule} from 'primeng/toast';
+import {TagModule} from 'primeng/tag';
+import {DatePickerModule} from 'primeng/datepicker';
+import {SelectModule} from 'primeng/select';
+import {TooltipModule} from 'primeng/tooltip';
 
-import { FlightService } from '../../core/services/flight.service';
-import { AircraftService } from '../../core/services/aircraft.service';
-import { GateService } from '../../core/services/gate.service';
-import { RoleService } from '../../core/services/role.service';
-import { Flight, FlightForm } from '../../shared/models/flight.model';
-import { Aircraft } from '../../shared/models/aircraft.model';
-import { Gate } from '../../shared/models/gate.model';
-import { SearchDTO } from '../../shared/models/search.model';
-import { Pagination } from '../../shared/models/pagination.model';
+import {FlightService} from '../../core/services/flight.service';
+import {AircraftService} from '../../core/services/aircraft.service';
+import {GateService} from '../../core/services/gate.service';
+import {SeatService} from '../../core/services/seat.service';
+import {BookingService} from '../../core/services/booking.service';
+import {AccountService} from '../../core/services/account.service';
+import {RoleService} from '../../core/services/role.service';
+import {Flight, FlightForm} from '../../shared/models/flight.model';
+import {Seat} from '../../shared/models/seat.model';
+import {SearchDTO} from '../../shared/models/search.model';
+import {Pagination} from '../../shared/models/pagination.model';
 
 @Component({
   selector: 'app-flights',
@@ -41,11 +43,7 @@ import { Pagination } from '../../shared/models/pagination.model';
   styleUrl: './flights.component.scss',
 })
 export class FlightsComponent implements OnInit {
-  private flightService = inject(FlightService);
-  private aircraftService = inject(AircraftService);
-  private gateService = inject(GateService);
-  private messageService = inject(MessageService);
-  private confirmationService = inject(ConfirmationService);
+
   protected roles = inject(RoleService);
 
   flights = signal<Flight[]>([]);
@@ -69,8 +67,28 @@ export class FlightsComponent implements OnInit {
   aircraftOptions: { label: string; value: string }[] = [];
   gateOptions: { label: string; value: string | null }[] = [];
 
+  // Booking
+  bookingDialogVisible = false;
+  selectedFlight: Flight | null = null;
+  availableSeats = signal<Seat[]>([]);
+  selectedSeat: Seat | null = null;
+  seatsLoading = signal(false);
+  bookingLoading = signal(false);
+
+  private flightService = inject(FlightService);
+  private aircraftService = inject(AircraftService);
+  private gateService = inject(GateService);
+  private seatService = inject(SeatService);
+  private bookingService = inject(BookingService);
+  private accountService = inject(AccountService);
+  private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
+  private currentAccountId: string | null = null;
+
   ngOnInit(): void {
-    this.loadDropdowns();
+    if (this.roles.canManage()) {
+      this.loadDropdowns();
+    }
   }
 
   private emptyForm(): FlightForm {
@@ -86,7 +104,7 @@ export class FlightsComponent implements OnInit {
   }
 
   private loadDropdowns(): void {
-    const allPages = new SearchDTO({ pagination: new Pagination({ page: 0, pageSize: 100 }) });
+    const allPages = new SearchDTO({pagination: new Pagination({page: 0, pageSize: 100})});
 
     this.aircraftService.search(allPages).subscribe(res => {
       this.aircraftOptions = res.items.map(a => ({
@@ -97,8 +115,8 @@ export class FlightsComponent implements OnInit {
 
     this.gateService.search(allPages).subscribe(res => {
       this.gateOptions = [
-        { label: 'None', value: null },
-        ...res.items.map(g => ({ label: `${g.gateNo} — ${g.terminal}`, value: g.id })),
+        {label: 'None', value: null},
+        ...res.items.map(g => ({label: `${g.gateNo} — ${g.terminal}`, value: g.id})),
       ];
     });
   }
@@ -116,14 +134,26 @@ export class FlightsComponent implements OnInit {
     this.loading.set(true);
 
     const filters = [];
-    if (this.searchFlightNo.trim()) filters.push({ field: 'flightNo',      type: 'TRIM_LIKE_IGNORE_CASE' as const, value: this.searchFlightNo.trim() });
-    if (this.searchFrom.trim())     filters.push({ field: 'departureCity', type: 'TRIM_LIKE_IGNORE_CASE' as const, value: this.searchFrom.trim() });
-    if (this.searchTo.trim())       filters.push({ field: 'arrivalCity',   type: 'TRIM_LIKE_IGNORE_CASE' as const, value: this.searchTo.trim() });
+    if (this.searchFlightNo.trim()) filters.push({
+      field: 'flightNo',
+      type: 'TRIM_LIKE_IGNORE_CASE' as const,
+      value: this.searchFlightNo.trim()
+    });
+    if (this.searchFrom.trim()) filters.push({
+      field: 'departureCity',
+      type: 'TRIM_LIKE_IGNORE_CASE' as const,
+      value: this.searchFrom.trim()
+    });
+    if (this.searchTo.trim()) filters.push({
+      field: 'arrivalCity',
+      type: 'TRIM_LIKE_IGNORE_CASE' as const,
+      value: this.searchTo.trim()
+    });
 
     const query = new SearchDTO({
       filters,
-      sorters: [{ field: this.lastSortField, direction: this.lastSortOrder === 1 ? 'ASC' : 'DESC' }],
-      pagination: new Pagination({ page: this.currentPage, pageSize: this.pageSize }),
+      sorters: [{field: this.lastSortField, direction: this.lastSortOrder === 1 ? 'ASC' : 'DESC'}],
+      pagination: new Pagination({page: this.currentPage, pageSize: this.pageSize}),
     });
 
     this.flightService.search(query).subscribe({
@@ -134,7 +164,7 @@ export class FlightsComponent implements OnInit {
       },
       error: () => {
         this.loading.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load flights' });
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load flights'});
       },
     });
   }
@@ -189,7 +219,7 @@ export class FlightsComponent implements OnInit {
         this.loadFlights();
       },
       error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not save flight' });
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not save flight'});
       },
     });
   }
@@ -203,13 +233,96 @@ export class FlightsComponent implements OnInit {
       accept: () => {
         this.flightService.delete(flight.id).subscribe({
           next: () => {
-            this.messageService.add({ severity: 'success', summary: 'Deleted', detail: `Flight ${flight.flightNo} deleted` });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Deleted',
+              detail: `Flight ${flight.flightNo} deleted`
+            });
             this.loadFlights();
           },
           error: () => {
-            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not delete flight' });
+            this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not delete flight'});
           },
         });
+      },
+    });
+  }
+
+  openBooking(flight: Flight): void {
+    this.selectedFlight = flight;
+    this.selectedSeat = null;
+    this.availableSeats.set([]);
+    this.bookingDialogVisible = true;
+    this.seatsLoading.set(true);
+
+    const loadSeats = () => {
+      const query = new SearchDTO({
+        filters: [
+          {field: 'flight.id', type: 'EQ' as const, value: flight.id},
+          {field: 'isAvailable', type: 'EQ' as const, value: true},
+        ],
+        sorters: [{field: 'type', direction: 'ASC'}],
+        pagination: new Pagination({page: 0, pageSize: 200}),
+      });
+      this.seatService.search(query).subscribe({
+        next: res => {
+          this.availableSeats.set(res.items);
+          this.seatsLoading.set(false);
+        },
+        error: () => {
+          this.seatsLoading.set(false);
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load seats'});
+        },
+      });
+    };
+
+    if (this.currentAccountId) {
+      loadSeats();
+    } else {
+      this.accountService.getMe().subscribe({
+        next: account => {
+          this.currentAccountId = account.id;
+          loadSeats();
+        },
+        error: () => {
+          this.seatsLoading.set(false);
+          this.bookingDialogVisible = false;
+          this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not load your account'});
+        },
+      });
+    }
+  }
+
+  get seatsGrouped(): { label: string; seats: Seat[] }[] {
+    const order = ['First Class', 'Business', 'Economy'];
+    return order
+      .map(label => ({label, seats: this.availableSeats().filter(s => s.type === label)}))
+      .filter(g => g.seats.length > 0);
+  }
+
+  selectSeat(seat: Seat): void {
+    this.selectedSeat = this.selectedSeat?.id === seat.id ? null : seat;
+  }
+
+  confirmBooking(): void {
+    if (!this.selectedSeat || !this.selectedFlight || !this.currentAccountId) return;
+    this.bookingLoading.set(true);
+    this.bookingService.create({
+      flightId: this.selectedFlight.id,
+      seatId: this.selectedSeat.id,
+    }).subscribe({
+      next: booking => {
+        this.bookingLoading.set(false);
+        this.bookingDialogVisible = false;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Booked!',
+          detail: `Booking confirmed — #${booking.bookingNo}`,
+        });
+      },
+      error: () => {
+        this.bookingLoading.set(false);
+        this.messageService.add({severity: 'error', summary: 'Error', detail: 'Could not create booking'});
       },
     });
   }
@@ -222,12 +335,4 @@ export class FlightsComponent implements OnInit {
     });
   }
 
-  aircraftLabel(id: string): string {
-    return this.aircraftOptions.find(a => a.value === id)?.label ?? id;
-  }
-
-  gateLabel(id: string | null): string {
-    if (!id) return '—';
-    return this.gateOptions.find(g => g.value === id)?.label ?? id;
-  }
 }

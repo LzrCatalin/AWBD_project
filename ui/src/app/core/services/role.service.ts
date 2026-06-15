@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { map } from 'rxjs';
+import { from, of, switchMap, map, catchError } from 'rxjs';
 
 const ROLES_CLAIM = 'https://airport-manager.com/roles';
 
@@ -10,19 +10,26 @@ export class RoleService {
   private auth = inject(AuthService);
 
   private roles = toSignal(
-    this.auth.user$.pipe(
-      map(user => (user?.[ROLES_CLAIM] as string[] | undefined) ?? [])
+    this.auth.isAuthenticated$.pipe(
+      switchMap(isAuth => {
+        if (!isAuth) return of([] as string[]);
+        return from(this.auth.getAccessTokenSilently()).pipe(
+          map(token => {
+            // JWT payload is base64url-encoded — replace url-safe chars before decoding
+            const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+            const payload = JSON.parse(atob(base64));
+            return (payload[ROLES_CLAIM] as string[] | undefined) ?? [];
+          }),
+          catchError(() => of([] as string[]))
+        );
+      })
     ),
     { initialValue: [] as string[] }
   );
 
-  isAdmin()     { return this.roles().includes('ROLE_ADMIN'); }
-  isStaff()     { return this.roles().includes('ROLE_STAFF'); }
-  isPassenger() { return this.roles().includes('ROLE_PASSENGER'); }
-
-  /** ADMIN sau STAFF — poate face CRUD pe flights, gates, seats */
+  isAdmin()     { return this.roles().includes('ADMIN'); }
+  isStaff()     { return this.roles().includes('STAFF'); }
+  isPassenger() { return this.roles().includes('PASSENGER'); }
   canManage()   { return this.isAdmin() || this.isStaff(); }
-
-  /** Doar ADMIN — aircraft, accounts */
   adminOnly()   { return this.isAdmin(); }
 }

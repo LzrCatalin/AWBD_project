@@ -11,6 +11,10 @@ export class AccountService {
   private http = inject(HttpClient);
   private base = `${environment.apiUrl}/api/accounts`;
 
+  getMe(): Observable<Account> {
+    return this.http.get<Account>(`${this.base}/me`);
+  }
+
   search(query: SearchDTO): Observable<PagedResponse<Account>> {
     return this.http.post<PagedResponse<Account>>(`${this.base}/search`, query);
   }

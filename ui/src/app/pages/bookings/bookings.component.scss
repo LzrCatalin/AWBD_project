@@ -74,3 +74,17 @@
   text-transform: none;
   letter-spacing: 0;
 }
+
+.booking-for {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--p-surface-ground);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: var(--p-text-muted-color);
+
+  i { color: var(--p-primary-color); }
+  strong { color: var(--p-text-color); }
+}

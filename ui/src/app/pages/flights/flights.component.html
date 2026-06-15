@@ -1,7 +1,7 @@
 <div class="page">
 
-  <p-toast />
-  <p-confirmdialog />
+  <p-toast/>
+  <p-confirmdialog/>
 
   <!-- Header -->
   <div class="page-header">
@@ -10,7 +10,7 @@
       <p>Manage all airport flights</p>
     </div>
     @if (roles.canManage()) {
-      <p-button label="New Flight" icon="pi pi-plus" (onClick)="openCreate()" />
+      <p-button label="New Flight" icon="pi pi-plus" (onClick)="openCreate()"/>
     }
   </div>
 
@@ -18,19 +18,19 @@
   <div class="search-bar">
     <div class="search-field">
       <label>Flight No.</label>
-      <input pInputText [(ngModel)]="searchFlightNo" placeholder="e.g. RO123" (keyup.enter)="onSearch()" />
+      <input pInputText [(ngModel)]="searchFlightNo" placeholder="e.g. RO123" (keyup.enter)="onSearch()"/>
     </div>
     <div class="search-field">
       <label>From</label>
-      <input pInputText [(ngModel)]="searchFrom" placeholder="Departure city" (keyup.enter)="onSearch()" />
+      <input pInputText [(ngModel)]="searchFrom" placeholder="Departure city" (keyup.enter)="onSearch()"/>
     </div>
     <div class="search-field">
       <label>To</label>
-      <input pInputText [(ngModel)]="searchTo" placeholder="Arrival city" (keyup.enter)="onSearch()" />
+      <input pInputText [(ngModel)]="searchTo" placeholder="Arrival city" (keyup.enter)="onSearch()"/>
     </div>
     <div class="search-actions">
-      <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
-      <p-button icon="pi pi-times" [text]="true" severity="secondary" pTooltip="Clear" (onClick)="clearSearch()" />
+      <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()"/>
+      <p-button icon="pi pi-times" [text]="true" severity="secondary" pTooltip="Clear" (onClick)="clearSearch()"/>
     </div>
   </div>
 
@@ -51,33 +51,52 @@
   >
     <ng-template pTemplate="header">
       <tr>
-        <th pSortableColumn="flightNo">Flight No <p-sortIcon field="flightNo" /></th>
-        <th pSortableColumn="departureCity">From <p-sortIcon field="departureCity" /></th>
-        <th pSortableColumn="arrivalCity">To <p-sortIcon field="arrivalCity" /></th>
-        <th pSortableColumn="departureTime">Departure <p-sortIcon field="departureTime" /></th>
-        <th pSortableColumn="arrivalTime">Arrival <p-sortIcon field="arrivalTime" /></th>
+        <th pSortableColumn="flightNo">Flight No
+          <p-sortIcon field="flightNo"/>
+        </th>
+        <th pSortableColumn="departureCity">From
+          <p-sortIcon field="departureCity"/>
+        </th>
+        <th pSortableColumn="arrivalCity">To
+          <p-sortIcon field="arrivalCity"/>
+        </th>
+        <th pSortableColumn="departureTime">Departure
+          <p-sortIcon field="departureTime"/>
+        </th>
+        <th pSortableColumn="arrivalTime">Arrival
+          <p-sortIcon field="arrivalTime"/>
+        </th>
         <th>Aircraft</th>
         <th>Gate</th>
-        @if (roles.canManage()) { <th style="width:100px">Actions</th> }
+        <th style="width:80px">Book</th>
+        @if (roles.canManage()) {
+          <th style="width:100px">Actions</th>
+        }
       </tr>
     </ng-template>
 
     <ng-template pTemplate="body" let-flight>
       <tr>
-        <td><p-tag [value]="flight.flightNo" severity="info" /></td>
+        <td>
+          <p-tag [value]="flight.flightNo" severity="info"/>
+        </td>
         <td>{{ flight.departureCity }}</td>
         <td>{{ flight.arrivalCity }}</td>
         <td>{{ formatDateTime(flight.departureTime) }}</td>
         <td>{{ formatDateTime(flight.arrivalTime) }}</td>
-        <td class="text-sm">{{ aircraftLabel(flight.aircraftId) }}</td>
-        <td>{{ gateLabel(flight.gateId) }}</td>
+        <td class="text-sm">{{ flight.aircraft ? flight.aircraft.model + ' (' + flight.aircraft.planeNo + ')' : '—' }}</td>
+        <td>{{ flight.gate ? flight.gate.gateNo + ' — ' + flight.gate.terminal : '—' }}</td>
+        <td>
+          <p-button icon="pi pi-ticket" [text]="true" [rounded]="true" severity="success"
+                    pTooltip="Book a seat" (onClick)="openBooking(flight)"/>
+        </td>
         @if (roles.canManage()) {
           <td>
             <div class="row-actions">
               <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
-                pTooltip="Edit" (onClick)="openEdit(flight)" />
+                        pTooltip="Edit" (onClick)="openEdit(flight)"/>
               <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-                pTooltip="Delete" (onClick)="confirmDelete(flight)" />
+                        pTooltip="Delete" (onClick)="confirmDelete(flight)"/>
             </div>
           </td>
         }
@@ -105,17 +124,17 @@
 
     <div class="form-row">
       <label>Flight No. *</label>
-      <input pInputText [(ngModel)]="form.flightNo" placeholder="e.g. RO123" />
+      <input pInputText [(ngModel)]="form.flightNo" placeholder="e.g. RO123"/>
     </div>
 
     <div class="form-row-2">
       <div class="form-row">
         <label>Departure City *</label>
-        <input pInputText [(ngModel)]="form.departureCity" placeholder="City" />
+        <input pInputText [(ngModel)]="form.departureCity" placeholder="City"/>
       </div>
       <div class="form-row">
         <label>Arrival City *</label>
-        <input pInputText [(ngModel)]="form.arrivalCity" placeholder="City" />
+        <input pInputText [(ngModel)]="form.arrivalCity" placeholder="City"/>
       </div>
     </div>
 
@@ -123,12 +142,12 @@
       <div class="form-row">
         <label>Departure Time *</label>
         <p-datepicker [(ngModel)]="form.departureTime" [showTime]="true" [showSeconds]="false"
-          dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full" />
+                      dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full"/>
       </div>
       <div class="form-row">
         <label>Arrival Time *</label>
         <p-datepicker [(ngModel)]="form.arrivalTime" [showTime]="true" [showSeconds]="false"
-          dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full" />
+                      dateFormat="yy-mm-dd" placeholder="Select date & time" styleClass="w-full"/>
       </div>
     </div>
 
@@ -159,7 +178,54 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
-    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false"/>
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()"/>
+  </ng-template>
+</p-dialog>
+
+<!-- Booking Dialog -->
+<p-dialog
+  [(visible)]="bookingDialogVisible"
+  [header]="'Book a seat — ' + (selectedFlight?.flightNo ?? '')"
+  [modal]="true"
+  [style]="{ width: '560px' }"
+  [draggable]="false"
+>
+  @if (seatsLoading()) {
+    <div class="seats-loading">
+      <i class="pi pi-spin pi-spinner" style="font-size:2rem"></i>
+      <span>Loading seats…</span>
+    </div>
+  } @else if (availableSeats().length === 0) {
+    <div class="seats-empty">No available seats for this flight.</div>
+  } @else {
+    <p class="seats-hint">Select a seat to book</p>
+    @for (group of seatsGrouped; track group.label) {
+      <div class="seat-group">
+        <div class="seat-group-label">{{ group.label }}</div>
+        <div class="seat-grid">
+          @for (seat of group.seats; track seat.id) {
+            <button
+              class="seat-btn"
+              [class.selected]="selectedSeat?.id === seat.id"
+              (click)="selectSeat(seat)"
+            >
+              {{ seat.seatNo }}
+            </button>
+          }
+        </div>
+      </div>
+    }
+  }
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="bookingDialogVisible = false"/>
+    <p-button
+      label="Confirm Booking"
+      icon="pi pi-check"
+      [disabled]="!selectedSeat || bookingLoading()"
+      [loading]="bookingLoading()"
+      (onClick)="confirmBooking()"
+    />
   </ng-template>
 </p-dialog>

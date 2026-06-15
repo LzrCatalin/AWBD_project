@@ -43,7 +43,6 @@
         <th pSortableColumn="bookingNo">Booking No. <p-sortIcon field="bookingNo" /></th>
         <th>Flight</th>
         <th>Seat</th>
-        <th>Account ID</th>
         <th pSortableColumn="bookingDate">Date <p-sortIcon field="bookingDate" /></th>
         <th style="width:90px">Actions</th>
       </tr>
@@ -52,9 +51,10 @@
     <ng-template pTemplate="body" let-booking>
       <tr>
         <td><p-tag [value]="booking.bookingNo" severity="info" /></td>
-        <td class="text-sm">{{ flightLabel(booking.flightId) }}</td>
-        <td>{{ seatLabel(booking.seatId) }}</td>
-        <td class="text-xs text-muted">{{ booking.accountId }}</td>
+        <td class="text-sm">
+          {{ booking.flight ? booking.flight.flightNo + ' — ' + booking.flight.departureCity + ' → ' + booking.flight.arrivalCity : '—' }}
+        </td>
+        <td>{{ booking.seat ? booking.seat.seatNo + ' (' + booking.seat.type + ')' : '—' }}</td>
         <td>{{ formatDate(booking.bookingDate) }}</td>
         <td>
           <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
@@ -64,7 +64,7 @@
     </ng-template>
 
     <ng-template pTemplate="emptymessage">
-      <tr><td colspan="6" class="empty-msg">No bookings found.</td></tr>
+      <tr><td colspan="5" class="empty-msg">No bookings found.</td></tr>
     </ng-template>
   </p-table>
 
@@ -80,6 +80,13 @@
 >
   <div class="dialog-form">
 
+    @if (auth.user$ | async; as user) {
+      <div class="booking-for">
+        <i class="pi pi-user"></i>
+        Booking for <strong>{{ user.name }}</strong>
+      </div>
+    }
+
     <div class="form-row">
       <label>Flight *</label>
       <p-select
@@ -89,6 +96,7 @@
         optionValue="value"
         placeholder="Select flight"
         styleClass="w-full"
+        appendTo="body"
         (onChange)="onFlightSelected()"
       />
     </div>
@@ -100,22 +108,17 @@
         [options]="seatOptions()"
         optionLabel="label"
         optionValue="value"
-        placeholder="{{ loadingSeats() ? 'Loading...' : 'Select seat' }}"
+        [placeholder]="loadingSeats() ? 'Loading seats...' : 'Select seat'"
         [disabled]="!form.flightId || loadingSeats()"
         styleClass="w-full"
+        appendTo="body"
       />
-    </div>
-
-    <div class="form-row">
-      <label>Account ID *</label>
-      <input pInputText [(ngModel)]="form.accountId" placeholder="Paste account UUID" />
-      <span class="hint">UUID-ul contului pentru care se face rezervarea</span>
     </div>
 
   </div>
 
   <ng-template pTemplate="footer">
     <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
-    <p-button label="Book" icon="pi pi-check" (onClick)="save()" />
+    <p-button label="Book" icon="pi pi-check" [disabled]="!form.flightId || !form.seatId" (onClick)="save()" />
   </ng-template>
 </p-dialog>

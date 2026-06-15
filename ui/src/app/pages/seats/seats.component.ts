@@ -162,7 +162,4 @@ export class SeatsComponent {
     });
   }
 
-  flightLabel(id: string): string {
-    return this.flightOptions.find(f => f.value === id)?.label ?? id;
-  }
 }

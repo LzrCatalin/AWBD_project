@@ -63,7 +63,7 @@
             [severity]="seat.available ? 'success' : 'danger'"
           />
         </td>
-        <td class="text-sm">{{ flightLabel(seat.flightId) }}</td>
+        <td class="text-sm">{{ seat.flight ? seat.flight.flightNo + ' — ' + seat.flight.departureCity + ' → ' + seat.flight.arrivalCity : '—' }}</td>
         @if (roles.canManage()) {
           <td>
             <div class="row-actions">

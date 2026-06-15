@@ -17,11 +17,14 @@ public class BookingDto {
     @NotNull(message = "Flight is mandatory")
     private UUID flightId;
 
-    @NotNull(message = "Account is mandatory")
     private UUID accountId;
 
     @NotNull(message = "Seat is mandatory")
     private UUID seatId;
 
     private LocalDateTime bookingDate;
+
+    private FlightDto flight;
+    private AccountDto account;
+    private SeatDto seat;
 }

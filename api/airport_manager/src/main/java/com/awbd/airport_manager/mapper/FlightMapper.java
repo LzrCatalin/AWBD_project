@@ -1,6 +1,8 @@
 package com.awbd.airport_manager.mapper;
 
+import com.awbd.airport_manager.dto.AircraftDto;
 import com.awbd.airport_manager.dto.FlightDto;
+import com.awbd.airport_manager.dto.GateDto;
 import com.awbd.airport_manager.model.Flight;
 import org.springframework.stereotype.Component;
 
@@ -19,9 +21,20 @@ public class FlightMapper implements EntityMapper<Flight, FlightDto> {
 
         if (flight.getAircraft() != null) {
             dto.setAircraftId(flight.getAircraft().getId());
+            AircraftDto aircraftDto = new AircraftDto();
+            aircraftDto.setId(flight.getAircraft().getId());
+            aircraftDto.setModel(flight.getAircraft().getModel());
+            aircraftDto.setPlaneNo(flight.getAircraft().getPlaneNo());
+            aircraftDto.setCapacity(flight.getAircraft().getCapacity());
+            dto.setAircraft(aircraftDto);
         }
         if (flight.getGate() != null) {
             dto.setGateId(flight.getGate().getId());
+            GateDto gateDto = new GateDto();
+            gateDto.setId(flight.getGate().getId());
+            gateDto.setGateNo(flight.getGate().getGateNo());
+            gateDto.setTerminal(flight.getGate().getTerminal());
+            dto.setGate(gateDto);
         }
 
         return dto;

@@ -72,6 +72,14 @@ public class AccountServiceImpl implements AccountService {
         accountRepository.delete(findById(id));
     }
 
+    @Override
+    public AccountDto getByEmail(String email) {
+        return accountMapper.toDto(
+                accountRepository.findByEmail(email)
+                        .orElseThrow(() -> new ResourceNotFoundException("Account", email))
+        );
+    }
+
     private Account findById(UUID id) {
         return accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account", id));
