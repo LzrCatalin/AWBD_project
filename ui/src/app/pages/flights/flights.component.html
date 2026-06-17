@@ -88,15 +88,15 @@
         <td>{{ flight.gate ? flight.gate.gateNo + ' — ' + flight.gate.terminal : '—' }}</td>
         <td>
           <p-button icon="pi pi-ticket" [text]="true" [rounded]="true" severity="success"
-                    pTooltip="Book a seat" (onClick)="openBooking(flight)"/>
+                    pTooltip="Book a seat" tooltipPosition="left" (onClick)="openBooking(flight)"/>
         </td>
         @if (roles.canManage()) {
           <td>
             <div class="row-actions">
               <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
-                        pTooltip="Edit" (onClick)="openEdit(flight)"/>
+                        pTooltip="Edit" tooltipPosition="left" (onClick)="openEdit(flight)"/>
               <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
-                        pTooltip="Delete" (onClick)="confirmDelete(flight)"/>
+                        pTooltip="Delete" tooltipPosition="left" (onClick)="confirmDelete(flight)"/>
             </div>
           </td>
         }
