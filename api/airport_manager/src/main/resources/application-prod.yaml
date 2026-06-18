@@ -11,7 +11,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: https://dev-fz464d04imnu8jll.eu.auth0.com/
+          issuer-uri: https://dev-***.eu.auth0.com/
           audiences: https://airport-manager-api
 
 security:
