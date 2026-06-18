@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cloudflared-config
+  namespace: airport-manager
+data:
+  config.yaml: |
+    tunnel: 120fc24a-b46a-4e1c-bf71-d1b4e7b47e88
+    credentials-file: /etc/cloudflared/credentials.json
+    ingress:
+      - hostname: ui.airport-manager.xyz
+        service: http://frontend.airport-manager.svc.cluster.local:80
+      - hostname: api.airport-manager.xyz
+        service: http://backend.airport-manager.svc.cluster.local:8080
+      - service: http_status:404

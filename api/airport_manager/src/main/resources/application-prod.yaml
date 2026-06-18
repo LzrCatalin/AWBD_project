@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://postgres:5432/airport-manager
+    username: airport-manager
+
+  jpa:
+    airport-manager:
+      show-sql: false
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: https://dev-fz464d04imnu8jll.eu.auth0.com/
+          audiences: https://airport-manager-api
+
+security:
+  cors:
+    allowed-origins: https://ui.airport-manager.xyz
