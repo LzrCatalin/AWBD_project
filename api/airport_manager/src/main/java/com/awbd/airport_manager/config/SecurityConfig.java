@@ -35,8 +35,8 @@ public class SecurityConfig {
                         // read-only: oricine poate vedea zboruri, gates, seats
                         .requestMatchers(HttpMethod.GET, "/flights/**", "/gates/**", "/seats/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/flights/search", "/gates/search", "/seats/search").permitAll()
-                        // management avioane — doar ADMIN
-                        .requestMatchers("/aircrafts/**").hasRole("ADMIN")
+                        // management avioane — ADMIN si STAFF
+                        .requestMatchers("/aircrafts/**").hasAnyRole("ADMIN", "STAFF")
                         // management zboruri/gates/seats — ADMIN sau STAFF
                         .requestMatchers(HttpMethod.POST, "/flights/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.PUT, "/flights/**").hasAnyRole("ADMIN", "STAFF")

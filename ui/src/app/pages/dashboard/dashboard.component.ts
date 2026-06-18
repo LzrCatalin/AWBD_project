@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, computed, effect, signal } from '@angular/core';
 import { AuthService } from '@auth0/auth0-angular';
 import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
@@ -35,7 +35,7 @@ interface QuickAction {
   templateUrl: './dashboard.component.html',
   styleUrl: './dashboard.component.scss',
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent {
   protected auth = inject(AuthService);
   protected roles = inject(RoleService);
   private router = inject(Router);
@@ -46,32 +46,34 @@ export class DashboardComponent implements OnInit {
 
   stats = signal<StatCard[]>([]);
   statsLoading = signal(true);
-  quickActions: QuickAction[] = [];
 
   private readonly oneItem = new SearchDTO({ pagination: new Pagination({ page: 0, pageSize: 1 }) });
 
-  ngOnInit(): void {
-    // Wait for Auth0 user to load before reading roles — the signal starts with []
-    this.auth.user$.pipe(filter(Boolean), take(1)).subscribe(() => {
-      if (this.roles.canManage()) {
+  quickActions = computed<QuickAction[]>(() => {
+    if(this.roles.canManage()) {
+      return [
+        { label: 'Flights',  icon: 'pi pi-send',       route: '/flights'  },
+        { label: 'Bookings', icon: 'pi pi-ticket',     route: '/bookings' },
+        { label: 'Aircraft', icon: 'pi pi-box',        route: '/aircraft' },
+        { label: 'Gates',    icon: 'pi pi-map-marker', route: '/gates'    },
+        { label: 'Seats',    icon: 'pi pi-table',      route: '/seats'    },
+        ...(this.roles.adminOnly() ? [{ label: 'Accounts', icon: 'pi pi-users', route: '/accounts' }] : []),
+      ];
+    }else {
+      return [
+        { label: 'Browse Flights', icon: 'pi pi-send',   route: '/flights'  },
+        { label: 'My Bookings',    icon: 'pi pi-ticket', route: '/bookings' },
+      ];
+    }
+  });
+
+  constructor() {
+    effect(() => {
+      if(this.roles.canManage()) {
         this.loadAdminStats();
-      } else {
+      }else if(this.roles.isPassenger()) {
         this.loadPassengerStats();
       }
-
-      this.quickActions = this.roles.canManage()
-        ? [
-            { label: 'Flights',  icon: 'pi pi-send',       route: '/flights'  },
-            { label: 'Bookings', icon: 'pi pi-ticket',     route: '/bookings' },
-            { label: 'Aircraft', icon: 'pi pi-box',        route: '/aircraft' },
-            { label: 'Gates',    icon: 'pi pi-map-marker', route: '/gates'    },
-            { label: 'Seats',    icon: 'pi pi-table',      route: '/seats'    },
-            ...(this.roles.adminOnly() ? [{ label: 'Accounts', icon: 'pi pi-users', route: '/accounts' }] : []),
-          ]
-        : [
-            { label: 'Browse Flights', icon: 'pi pi-send',   route: '/flights'  },
-            { label: 'My Bookings',    icon: 'pi pi-ticket', route: '/bookings' },
-          ];
     });
   }
 

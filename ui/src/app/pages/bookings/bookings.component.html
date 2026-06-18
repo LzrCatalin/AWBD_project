@@ -58,7 +58,7 @@
         <td>{{ formatDate(booking.bookingDate) }}</td>
         <td>
           <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
-            pTooltip="Cancel booking" (onClick)="confirmDelete(booking)" />
+            pTooltip="Cancel booking" tooltipPosition="left" (onClick)="confirmDelete(booking)" />
         </td>
       </tr>
     </ng-template>
