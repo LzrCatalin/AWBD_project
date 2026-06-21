@@ -1,0 +1,69 @@
+<div class="shell-layout" [class.collapsed]="collapsed()">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <i class="pi pi-send brand-icon"></i>
+      @if (!collapsed()) {
+        <span class="brand-name">Airport Manager</span>
+      }
+    </div>
+
+    <nav class="nav">
+      @for (item of navItems(); track item.route) {
+        <a
+          class="nav-item"
+          [routerLink]="item.route"
+          routerLinkActive="active"
+          [pTooltip]="collapsed() ? item.label : ''"
+          tooltipPosition="right"
+        >
+          <i [class]="item.icon"></i>
+          @if (!collapsed()) {
+            <span>{{ item.label }}</span>
+          }
+        </a>
+      }
+    </nav>
+  </aside>
+
+  <!-- Right side -->
+  <div class="shell-right">
+
+    <!-- Navbar -->
+    <header class="navbar">
+      <p-button
+        icon="pi pi-bars"
+        [text]="true"
+        [rounded]="true"
+        severity="secondary"
+        (onClick)="toggleSidebar()"
+      />
+
+      @if (auth.user$ | async; as user) {
+        <div class="user-section">
+          <span class="user-name">{{ user.name }}</span>
+          <p-avatar
+            [image]="user.picture ?? undefined"
+            shape="circle"
+            size="normal"
+          />
+          <p-button
+            icon="pi pi-sign-out"
+            [rounded]="true"
+            [text]="true"
+            severity="secondary"
+            pTooltip="Sign out"
+            (onClick)="logout()"
+          />
+        </div>
+      }
+    </header>
+
+    <!-- Page content -->
+    <main class="page-content">
+      <router-outlet />
+    </main>
+
+  </div>
+</div>

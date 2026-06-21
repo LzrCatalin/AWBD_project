@@ -1,0 +1,89 @@
+<div class="page">
+
+  <p-toast />
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h1>Aircraft</h1>
+      <p>Manage fleet</p>
+    </div>
+    @if (roles.adminOnly()) {
+      <p-button label="New Aircraft" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
+  </div>
+
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Model</label>
+      <input pInputText [(ngModel)]="searchModel" placeholder="e.g. Boeing 737" (keyup.enter)="onSearch()" />
+    </div>
+    <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
+  </div>
+
+  <p-table
+    [value]="aircrafts()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    (onLazyLoad)="loadAircrafts($event)"
+    styleClass="p-datatable-gridlines"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="model">Model <p-sortIcon field="model" /></th>
+        <th pSortableColumn="planeNo">Plane No. <p-sortIcon field="planeNo" /></th>
+        <th pSortableColumn="capacity">Capacity <p-sortIcon field="capacity" /></th>
+        @if (roles.adminOnly()) { <th style="width:100px">Actions</th> }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-aircraft>
+      <tr>
+        <td><strong>{{ aircraft.model }}</strong></td>
+        <td>{{ aircraft.planeNo }}</td>
+        <td>{{ aircraft.capacity }} seats</td>
+        @if (roles.adminOnly()) {
+          <td>
+            <div class="row-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                pTooltip="Edit" tooltipPosition="left" (onClick)="openEdit(aircraft)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                pTooltip="Delete" tooltipPosition="left" (onClick)="confirmDelete(aircraft)" />
+            </div>
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="4" class="empty-msg">No aircraft found.</td></tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="dialogTitle" [modal]="true" [style]="{ width: '420px' }" [draggable]="false">
+  <div class="dialog-form">
+    <div class="form-row">
+      <label>Model *</label>
+      <input pInputText [(ngModel)]="form.model" placeholder="e.g. Boeing 737-800" />
+    </div>
+    <div class="form-row">
+      <label>Plane No.</label>
+      <input pInputText [(ngModel)]="form.planeNo" placeholder="e.g. YR-BAA" />
+    </div>
+    <div class="form-row">
+      <label>Capacity *</label>
+      <p-inputnumber [(ngModel)]="form.capacity" [min]="1" [max]="900" placeholder="Seats" styleClass="w-full" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

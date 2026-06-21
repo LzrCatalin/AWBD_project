@@ -34,8 +34,9 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         // read-only: oricine poate vedea zboruri, gates, seats
                         .requestMatchers(HttpMethod.GET, "/flights/**", "/gates/**", "/seats/**").permitAll()
-                        // management avioane — doar ADMIN
-                        .requestMatchers("/aircrafts/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/flights/search", "/gates/search", "/seats/search").permitAll()
+                        // management avioane — ADMIN si STAFF
+                        .requestMatchers("/aircrafts/**").hasAnyRole("ADMIN", "STAFF")
                         // management zboruri/gates/seats — ADMIN sau STAFF
                         .requestMatchers(HttpMethod.POST, "/flights/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.PUT, "/flights/**").hasAnyRole("ADMIN", "STAFF")
@@ -46,6 +47,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/seats/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.PUT, "/seats/**").hasAnyRole("ADMIN", "STAFF")
                         .requestMatchers(HttpMethod.DELETE, "/seats/**").hasAnyRole("ADMIN", "STAFF")
+                        // contul propriu — orice user autentificat
+                        .requestMatchers(HttpMethod.GET, "/accounts/me").authenticated()
                         // conturi — doar ADMIN
                         .requestMatchers("/accounts/**").hasRole("ADMIN")
                         // booking — orice utilizator autentificat

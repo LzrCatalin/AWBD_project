@@ -1,0 +1,30 @@
+<div class="login-wrapper">
+  <div class="login-card">
+
+    <div class="login-header">
+      <i class="pi pi-send login-icon"></i>
+      <h1>Airport Manager</h1>
+      <p>Sign in to your account to continue</p>
+    </div>
+
+    <div class="login-actions">
+      <p-button
+        label="Continue with Google"
+        icon="pi pi-google"
+        styleClass="w-full"
+        [outlined]="true"
+        (onClick)="loginWithGoogle()"
+      />
+      <div class="divider">
+        <span>or</span>
+      </div>
+      <p-button
+        label="Sign in"
+        icon="pi pi-sign-in"
+        styleClass="w-full"
+        (onClick)="login()"
+      />
+    </div>
+
+  </div>
+</div>

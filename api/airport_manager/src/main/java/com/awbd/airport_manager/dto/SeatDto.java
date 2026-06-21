@@ -21,4 +21,6 @@ public class SeatDto {
 
     @NotNull(message = "Flight is mandatory")
     private UUID flightId;
+
+    private FlightDto flight;
 }

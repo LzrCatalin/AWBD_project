@@ -1,0 +1,130 @@
+<div class="page">
+
+  <p-toast />
+  <p-confirmdialog />
+
+  <div class="page-header">
+    <div>
+      <h1>Seats</h1>
+      <p>Manage seats per flight</p>
+    </div>
+    @if (roles.canManage()) {
+      <p-button label="New Seat" icon="pi pi-plus" (onClick)="openCreate()" />
+    }
+  </div>
+
+  <div class="search-bar">
+    <div class="search-field">
+      <label>Flight</label>
+      <p-select
+        [(ngModel)]="filterFlightId"
+        [options]="[{ label: 'All flights', value: '' }, ...flightOptions]"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Filter by flight"
+        styleClass="w-full"
+      />
+    </div>
+    <div class="search-field">
+      <label>Seat No.</label>
+      <input pInputText [(ngModel)]="filterSeatNo" placeholder="e.g. 12A" (keyup.enter)="onSearch()" />
+    </div>
+    <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
+  </div>
+
+  <p-table
+    [value]="seats()"
+    [lazy]="true"
+    [paginator]="true"
+    [rows]="pageSize"
+    [totalRecords]="totalRecords()"
+    [loading]="loading()"
+    [rowsPerPageOptions]="[10, 25, 50]"
+    (onLazyLoad)="loadSeats($event)"
+    styleClass="p-datatable-gridlines"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="seatNo">Seat No. <p-sortIcon field="seatNo" /></th>
+        <th pSortableColumn="type">Type <p-sortIcon field="type" /></th>
+        <th>Available</th>
+        <th>Flight</th>
+        @if (roles.canManage()) { <th style="width:100px">Actions</th> }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-seat>
+      <tr>
+        <td><strong>{{ seat.seatNo }}</strong></td>
+        <td>{{ seat.type || '—' }}</td>
+        <td>
+          <p-tag
+            [value]="seat.available ? 'Available' : 'Taken'"
+            [severity]="seat.available ? 'success' : 'danger'"
+          />
+        </td>
+        <td class="text-sm">{{ seat.flight ? seat.flight.flightNo + ' — ' + seat.flight.departureCity + ' → ' + seat.flight.arrivalCity : '—' }}</td>
+        @if (roles.canManage()) {
+          <td>
+            <div class="row-actions">
+              <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary"
+                pTooltip="Edit" tooltipPosition="left" (onClick)="openEdit(seat)" />
+              <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger"
+                pTooltip="Delete" tooltipPosition="left" (onClick)="confirmDelete(seat)" />
+            </div>
+          </td>
+        }
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr><td colspan="5" class="empty-msg">No seats found.</td></tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [header]="dialogTitle" [modal]="true" [style]="{ width: '420px' }" [draggable]="false">
+  <div class="dialog-form">
+
+    <div class="form-row">
+      <label>Flight *</label>
+      <p-select
+        [(ngModel)]="form.flightId"
+        [options]="flightOptions"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select flight"
+        styleClass="w-full"
+      />
+    </div>
+
+    <div class="form-row-2">
+      <div class="form-row">
+        <label>Seat No. *</label>
+        <input pInputText [(ngModel)]="form.seatNo" placeholder="e.g. 12A" />
+      </div>
+      <div class="form-row">
+        <label>Type</label>
+        <p-select
+          [(ngModel)]="form.type"
+          [options]="seatTypeOptions"
+          optionLabel="label"
+          optionValue="value"
+          styleClass="w-full"
+        />
+      </div>
+    </div>
+
+    <div class="form-row form-row-inline">
+      <label>Available</label>
+      <p-toggleswitch [(ngModel)]="form.available" />
+    </div>
+
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" [text]="true" severity="secondary" (onClick)="dialogVisible = false" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

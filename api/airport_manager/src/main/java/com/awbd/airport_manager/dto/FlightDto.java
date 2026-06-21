@@ -34,4 +34,7 @@ public class FlightDto {
     private UUID aircraftId;
 
     private UUID gateId;
+
+    private AircraftDto aircraft;
+    private GateDto gate;
 }

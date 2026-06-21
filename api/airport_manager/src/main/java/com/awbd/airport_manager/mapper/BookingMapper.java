@@ -2,10 +2,16 @@ package com.awbd.airport_manager.mapper;
 
 import com.awbd.airport_manager.dto.BookingDto;
 import com.awbd.airport_manager.model.Booking;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class BookingMapper implements EntityMapper<Booking, BookingDto> {
+
+    private final FlightMapper flightMapper;
+    private final AccountMapper accountMapper;
+    private final SeatMapper seatMapper;
 
     @Override
     public BookingDto toDto(Booking booking) {
@@ -16,12 +22,15 @@ public class BookingMapper implements EntityMapper<Booking, BookingDto> {
 
         if (booking.getFlight() != null) {
             dto.setFlightId(booking.getFlight().getId());
+            dto.setFlight(flightMapper.toDto(booking.getFlight()));
         }
         if (booking.getAccount() != null) {
             dto.setAccountId(booking.getAccount().getId());
+            dto.setAccount(accountMapper.toDto(booking.getAccount()));
         }
         if (booking.getSeat() != null) {
             dto.setSeatId(booking.getSeat().getId());
+            dto.setSeat(seatMapper.toDto(booking.getSeat()));
         }
 
         return dto;
