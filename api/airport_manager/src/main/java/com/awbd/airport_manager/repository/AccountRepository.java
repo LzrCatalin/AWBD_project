@@ -12,4 +12,6 @@ import java.util.UUID;
 public interface AccountRepository extends JpaRepository<Account, UUID>, JpaSpecificationExecutor<Account> {
 
     Optional<Account> findByEmail(String email);
+
+    Optional<Account> findByAuth0Sub(String auth0Sub);
 }

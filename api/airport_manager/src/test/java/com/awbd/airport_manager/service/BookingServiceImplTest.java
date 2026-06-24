@@ -8,10 +8,10 @@ import com.awbd.airport_manager.model.Account;
 import com.awbd.airport_manager.model.Booking;
 import com.awbd.airport_manager.model.Flight;
 import com.awbd.airport_manager.model.Seat;
-import com.awbd.airport_manager.repository.AccountRepository;
 import com.awbd.airport_manager.repository.BookingRepository;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.SeatRepository;
+import com.awbd.airport_manager.service.impl.AccountProvisioningService;
 import com.awbd.airport_manager.service.impl.BookingServiceImpl;
 import com.awbd.airport_manager.util.pagination.PagedResponse;
 import com.awbd.airport_manager.util.search.dto.SearchDTO;
@@ -48,11 +48,11 @@ class BookingServiceImplTest {
     @Mock
     private FlightRepository flightRepository;
     @Mock
-    private AccountRepository accountRepository;
-    @Mock
     private SeatRepository seatRepository;
     @Mock
     private BookingMapper bookingMapper;
+    @Mock
+    private AccountProvisioningService accountProvisioningService;
 
     @InjectMocks
     private BookingServiceImpl bookingService;
@@ -105,7 +105,7 @@ class BookingServiceImplTest {
         List<SimpleGrantedAuthority> authorities = List.of(roles).stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-        UserInfo userInfo = new UserInfo("sub", email, List.of(roles), authorities);
+        UserInfo userInfo = new UserInfo("sub", email, "Test User", List.of(roles), authorities);
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(userInfo, null, authorities)
         );
@@ -165,7 +165,7 @@ class BookingServiceImplTest {
         setupSecurityContext("user@test.com", "ROLE_USER");
 
         when(flightRepository.findById(flightId)).thenReturn(Optional.of(flight));
-        when(accountRepository.findByEmail("user@test.com")).thenReturn(Optional.of(account));
+        when(accountProvisioningService.resolveCurrentAccount()).thenReturn(account);
         when(seatRepository.findById(seatId)).thenReturn(Optional.of(seat));
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
@@ -173,6 +173,7 @@ class BookingServiceImplTest {
         BookingDto result = bookingService.create(bookingDto);
 
         verify(bookingRepository).save(any(Booking.class));
+        verify(accountProvisioningService).resolveCurrentAccount();
         assertThat(result).isNotNull();
     }
 
@@ -186,20 +187,19 @@ class BookingServiceImplTest {
     }
 
     @Test
-    void create_whenAccountNotFound_throwsResourceNotFoundException() {
-        setupSecurityContext("user@test.com", "ROLE_USER");
+    void create_whenAccountCannotBeResolved_propagatesException() {
         when(flightRepository.findById(flightId)).thenReturn(Optional.of(flight));
-        when(accountRepository.findByEmail("user@test.com")).thenReturn(Optional.empty());
+        when(accountProvisioningService.resolveCurrentAccount())
+                .thenThrow(new IllegalStateException("no email claim"));
 
         assertThatThrownBy(() -> bookingService.create(bookingDto))
-                .isInstanceOf(ResourceNotFoundException.class);
+                .isInstanceOf(IllegalStateException.class);
     }
 
     @Test
     void create_whenSeatNotFound_throwsResourceNotFoundException() {
-        setupSecurityContext("user@test.com", "ROLE_USER");
         when(flightRepository.findById(flightId)).thenReturn(Optional.of(flight));
-        when(accountRepository.findByEmail("user@test.com")).thenReturn(Optional.of(account));
+        when(accountProvisioningService.resolveCurrentAccount()).thenReturn(account);
         when(seatRepository.findById(seatId)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> bookingService.create(bookingDto))

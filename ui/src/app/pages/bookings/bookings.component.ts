@@ -1,4 +1,5 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
+import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
@@ -10,6 +11,7 @@ import {ToastModule} from 'primeng/toast';
 import {TagModule} from 'primeng/tag';
 import {SelectModule} from 'primeng/select';
 import {TooltipModule} from 'primeng/tooltip';
+import {PaginatorModule, PaginatorState} from 'primeng/paginator';
 import {AsyncPipe} from '@angular/common';
 import {AuthService} from '@auth0/auth0-angular';
 
@@ -26,7 +28,7 @@ type SelectOption = { label: string; value: string };
 @Component({
   selector: 'app-bookings',
   imports: [FormsModule, TableModule, ButtonModule, InputTextModule, DialogModule,
-    ConfirmDialogModule, ToastModule, TagModule, SelectModule, TooltipModule, AsyncPipe],
+    ConfirmDialogModule, ToastModule, TagModule, SelectModule, TooltipModule, PaginatorModule, AsyncPipe],
   templateUrl: './bookings.component.html',
   styleUrl: './bookings.component.scss',
 })
@@ -38,6 +40,16 @@ export class BookingsComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   protected roles = inject(RoleService);
   protected auth = inject(AuthService);
+  private router = inject(Router);
+
+  /** Staff create bookings via the dialog; passengers browse flights to book. */
+  primaryAction(): void {
+    if (this.roles.canManage()) {
+      this.openCreate();
+    } else {
+      this.router.navigate(['/flights']);
+    }
+  }
 
   bookings = signal<Booking[]>([]);
   totalRecords = signal(0);
@@ -65,6 +77,22 @@ export class BookingsComponent implements OnInit {
           value: f.id,
         }));
       });
+
+    if (!this.roles.canManage()) {
+      // Passenger card view has no lazy table to trigger the initial load.
+      this.pageSize = 5;
+      this.loadBookings();
+    }
+  }
+
+  onPage(event: PaginatorState): void {
+    this.currentPage = event.page ?? 0;
+    this.pageSize = event.rows ?? this.pageSize;
+    this.loadBookings();
+  }
+
+  cityCode(city: string): string {
+    return (city ?? '').trim().slice(0, 3).toUpperCase() || '—';
   }
 
   private emptyForm(): BookingForm {

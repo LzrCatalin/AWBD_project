@@ -19,6 +19,7 @@ public class BookingMapper implements EntityMapper<Booking, BookingDto> {
         dto.setId(booking.getId());
         dto.setBookingNo(booking.getBookingNo());
         dto.setBookingDate(booking.getBookingDate());
+        dto.setTotalPrice(booking.getTotalPrice());
 
         if (booking.getFlight() != null) {
             dto.setFlightId(booking.getFlight().getId());

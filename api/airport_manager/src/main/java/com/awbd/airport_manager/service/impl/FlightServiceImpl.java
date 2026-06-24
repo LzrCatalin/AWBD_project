@@ -7,6 +7,7 @@ import com.awbd.airport_manager.model.Flight;
 import com.awbd.airport_manager.repository.AircraftRepository;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.GateRepository;
+import com.awbd.airport_manager.repository.SeatRepository;
 import com.awbd.airport_manager.service.api.FlightService;
 import com.awbd.airport_manager.util.pagination.PagedResponse;
 import com.awbd.airport_manager.util.search.dto.SearchDTO;
@@ -24,6 +25,7 @@ public class FlightServiceImpl implements FlightService {
     private final FlightRepository flightRepository;
     private final AircraftRepository aircraftRepository;
     private final GateRepository gateRepository;
+    private final SeatRepository seatRepository;
     private final FlightMapper flightMapper;
 
     @Override
@@ -31,12 +33,20 @@ public class FlightServiceImpl implements FlightService {
         return new PagedResponse<>(
                 flightRepository.findAll(new QuerySpecification<>(searchDTO), searchDTO.buildPageable())
                         .map(flightMapper::toDto)
+                        .map(this::withAvailableSeats)
         );
     }
 
     @Override
     public FlightDto getById(UUID id) {
-        return flightMapper.toDto(findById(id));
+        return withAvailableSeats(flightMapper.toDto(findById(id)));
+    }
+
+    private FlightDto withAvailableSeats(FlightDto dto) {
+        if (dto.getId() != null) {
+            dto.setAvailableSeats((int) seatRepository.countByFlight_IdAndIsAvailableTrue(dto.getId()));
+        }
+        return dto;
     }
 
     @Override
@@ -56,6 +66,8 @@ public class FlightServiceImpl implements FlightService {
         flight.setArrivalTime(dto.getArrivalTime());
         flight.setDepartureCity(dto.getDepartureCity());
         flight.setArrivalCity(dto.getArrivalCity());
+        flight.setBaseFare(dto.getBaseFare() != null ? dto.getBaseFare() : java.math.BigDecimal.ZERO);
+        flight.setTaxes(dto.getTaxes() != null ? dto.getTaxes() : java.math.BigDecimal.ZERO);
         resolveRelations(flight, dto);
         return flightMapper.toDto(flightRepository.save(flight));
     }

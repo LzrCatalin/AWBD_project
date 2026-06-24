@@ -1,12 +1,21 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from '@auth0/auth0-angular';
+import { manageGuard, adminGuard } from './core/guards/manage.guard';
 
 export const routes: Routes = [
+  // Public landing page (no auth)
+  {
+    path: '',
+    pathMatch: 'full',
+    loadComponent: () =>
+      import('./pages/landing/landing.component').then((m) => m.LandingComponent),
+  },
   {
     path: 'login',
     loadComponent: () =>
       import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
+  // Authenticated app — chrome (sidebar vs top-nav) chosen by role inside the shell
   {
     path: '',
     loadComponent: () =>
@@ -15,6 +24,7 @@ export const routes: Routes = [
     children: [
       {
         path: 'dashboard',
+        canActivate: [manageGuard],
         loadComponent: () =>
           import('./pages/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
@@ -24,39 +34,48 @@ export const routes: Routes = [
           import('./pages/flights/flights.component').then((m) => m.FlightsComponent),
       },
       {
-        path: 'aircraft',
-        loadComponent: () =>
-          import('./pages/aircraft/aircraft.component').then((m) => m.AircraftComponent),
-      },
-      {
-        path: 'gates',
-        loadComponent: () =>
-          import('./pages/gates/gates.component').then((m) => m.GatesComponent),
-      },
-      {
-        path: 'seats',
-        loadComponent: () =>
-          import('./pages/seats/seats.component').then((m) => m.SeatsComponent),
-      },
-      {
         path: 'bookings',
         loadComponent: () =>
           import('./pages/bookings/bookings.component').then((m) => m.BookingsComponent),
       },
       {
-        path: 'accounts',
+        path: 'checkout/:flightId',
         loadComponent: () =>
-          import('./pages/accounts/accounts.component').then((m) => m.AccountsComponent),
+          import('./pages/checkout/checkout.component').then((m) => m.CheckoutComponent),
       },
       {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full',
+        path: 'profile',
+        loadComponent: () =>
+          import('./pages/profile/profile.component').then((m) => m.ProfileComponent),
+      },
+      {
+        path: 'aircraft',
+        canActivate: [manageGuard],
+        loadComponent: () =>
+          import('./pages/aircraft/aircraft.component').then((m) => m.AircraftComponent),
+      },
+      {
+        path: 'gates',
+        canActivate: [manageGuard],
+        loadComponent: () =>
+          import('./pages/gates/gates.component').then((m) => m.GatesComponent),
+      },
+      {
+        path: 'seats',
+        canActivate: [manageGuard],
+        loadComponent: () =>
+          import('./pages/seats/seats.component').then((m) => m.SeatsComponent),
+      },
+      {
+        path: 'accounts',
+        canActivate: [adminGuard],
+        loadComponent: () =>
+          import('./pages/accounts/accounts.component').then((m) => m.AccountsComponent),
       },
     ],
   },
   {
     path: '**',
-    redirectTo: 'login',
+    redirectTo: '',
   },
 ];

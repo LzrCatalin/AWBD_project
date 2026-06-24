@@ -23,11 +23,14 @@ interface NavItem {
 })
 export class ShellComponent {
   protected auth = inject(AuthService);
-  private roleService = inject(RoleService);
+  protected roleService = inject(RoleService);
 
   collapsed = signal(false);
 
-  private allNavItems: NavItem[] = [
+  /** STAFF/ADMIN get the management sidebar; passengers get a clean top-nav. */
+  canManage = computed(() => this.roleService.canManage());
+
+  private sidebarItems: NavItem[] = [
     { label: 'Dashboard', icon: 'pi pi-home',      route: '/dashboard' },
     { label: 'Flights',   icon: 'pi pi-send',       route: '/flights'   },
     { label: 'Bookings',  icon: 'pi pi-ticket',     route: '/bookings'  },
@@ -37,7 +40,14 @@ export class ShellComponent {
     { label: 'Accounts',  icon: 'pi pi-users',      route: '/accounts',  adminOnly: true  },
   ];
 
-  navItems = computed(() => this.allNavItems.filter(item => {
+  // Passenger top-nav
+  travelerItems: NavItem[] = [
+    { label: 'Book Flights', icon: 'pi pi-send',   route: '/flights'  },
+    { label: 'My Flights',   icon: 'pi pi-ticket', route: '/bookings' },
+    { label: 'Profile',      icon: 'pi pi-user',   route: '/profile'  },
+  ];
+
+  navItems = computed(() => this.sidebarItems.filter(item => {
     if (item.adminOnly)  return this.roleService.adminOnly();
     if (item.manageOnly) return this.roleService.canManage();
     return true;

@@ -41,6 +41,8 @@ spring:
 
 auth0:
   roles-namespace: https://airport-manager.com/roles
+  email-claim: https://airport-manager.com/email
+  name-claim: https://airport-manager.com/name
 
 security:
   cors:

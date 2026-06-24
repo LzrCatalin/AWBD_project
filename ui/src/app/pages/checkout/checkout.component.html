@@ -1,0 +1,136 @@
+<p-toast />
+
+<div class="page-head">
+  <a routerLink="/flights" class="back-link"><i class="pi pi-arrow-left"></i> Back to flights</a>
+  <span class="eyebrow">Checkout</span>
+  <h1 class="section-title">Review and confirm</h1>
+</div>
+
+@if (loading()) {
+  <div class="panel-card"><p-skeleton height="12rem" /></div>
+} @else if (flight(); as f) {
+  <div class="checkout-grid">
+    <!-- Left: selected flight summary -->
+    <article class="panel-card flight-summary">
+      <div class="fs-head">
+        <span class="fs-airline">{{ f.aircraft?.model ?? 'SkyOps' }}</span>
+        <span class="status-badge status-boarding">{{ f.flightNo }}</span>
+      </div>
+      <h2 class="fs-title">{{ f.departureCity }} to {{ f.arrivalCity }}</h2>
+      <div class="fs-route">
+        <span class="airport-pill">{{ cityCode(f.departureCity) }}</span>
+        <i class="pi pi-arrow-right route-arrow"></i>
+        <i class="pi pi-send"></i>
+        <i class="pi pi-arrow-right route-arrow"></i>
+        <span class="airport-pill">{{ cityCode(f.arrivalCity) }}</span>
+      </div>
+
+      <div class="fs-price-line">
+        <div>
+          <span class="fc-label">Total visible price</span>
+          <span class="fs-price">€{{ (f.baseFare ?? 0) + (f.taxes ?? 0) }}</span>
+        </div>
+        <span class="fs-seats">Open seats: {{ f.availableSeats ?? '—' }}</span>
+      </div>
+
+      <div class="fs-meta">
+        <div><span class="fc-label">Departure</span><strong>{{ formatDateTime(f.departureTime) }}</strong></div>
+        <div><span class="fc-label">Duration</span><strong>{{ duration() }}</strong></div>
+        <div><span class="fc-label">Base fare</span><strong>€{{ f.baseFare }}</strong></div>
+        <div><span class="fc-label">Taxes</span><strong>€{{ f.taxes }}</strong></div>
+      </div>
+
+      <div class="fs-included">
+        <span class="fc-label">Included and route details</span>
+        <ul>
+          <li>Direct flight</li>
+          <li>Cabin bag included</li>
+          <li>Checked bag +€{{ checkedBagPrice }}</li>
+          <li>Meal included</li>
+        </ul>
+        <p class="fs-gate">{{ f.flightNo }}@if (f.gate) { — Gate {{ f.gate.gateNo }} ({{ f.gate.terminal }})}</p>
+      </div>
+
+      <div class="fs-seats-block">
+        <span class="fc-label">Choose your seat</span>
+        @if (seatsLoading()) {
+          <p class="seats-status"><i class="pi pi-spin pi-spinner"></i> Loading seats…</p>
+        } @else if (seats().length === 0) {
+          <p class="seats-status">No seats available for this flight.</p>
+        } @else {
+          @for (group of seatsGrouped; track group.label) {
+            <div class="seat-group">
+              <span class="seat-group-label">{{ group.label }}</span>
+              <div class="seat-grid">
+                @for (seat of group.seats; track seat.id) {
+                  <button type="button" class="seat-chip"
+                          [class.selected]="selectedSeat()?.id === seat.id"
+                          (click)="selectSeat(seat)">
+                    {{ seat.seatNo }}
+                  </button>
+                }
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </article>
+
+    <!-- Right: traveler details + add-ons -->
+    <article class="panel-card traveler-card">
+      <h2 class="tc-title">Traveler details</h2>
+
+      <div class="field">
+        <label>Full name</label>
+        <input pInputText [(ngModel)]="fullName" placeholder="Full name" />
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input pInputText [(ngModel)]="email" placeholder="email@example.com" />
+      </div>
+      <div class="field">
+        <label>Passport</label>
+        <input pInputText [(ngModel)]="passport" placeholder="AB1234567" />
+      </div>
+
+      <div class="addons">
+        <div class="addons-head">
+          <span>Add-ons</span>
+          <span class="addons-note">+€{{ checkedBagPrice }}</span>
+        </div>
+        <label class="addon-row">
+          <p-checkbox [binary]="true" [disabled]="true" [ngModel]="true" />
+          <span>Cabin bag</span>
+          <strong>Included in ticket</strong>
+        </label>
+        <label class="addon-row">
+          <p-checkbox [binary]="true" [(ngModel)]="addCheckedBag" />
+          <span>Checked bag</span>
+          <strong>Add €{{ checkedBagPrice }}</strong>
+        </label>
+      </div>
+
+      <div class="seat-line">
+        <span>Seat</span>
+        <strong>{{ selectedSeat()?.seatNo ?? '—' }}</strong>
+      </div>
+
+      <div class="total-line">
+        <span>Total</span>
+        <span class="total-value">€{{ total() }}</span>
+      </div>
+
+      <p-button label="Confirm booking" icon="pi pi-check" styleClass="w-full"
+                [disabled]="!selectedSeat()" [loading]="booking()" (onClick)="confirm()" />
+      @if (!selectedSeat() && !seatsLoading()) {
+        <p class="disclaimer">Select a seat to continue.</p>
+      }
+    </article>
+  </div>
+} @else {
+  <div class="panel-card empty">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>That flight could not be found.</p>
+    <p-button label="Back to flights" routerLink="/flights" [text]="true" />
+  </div>
+}

@@ -18,6 +18,8 @@ public class FlightMapper implements EntityMapper<Flight, FlightDto> {
         dto.setArrivalTime(flight.getArrivalTime());
         dto.setDepartureCity(flight.getDepartureCity());
         dto.setArrivalCity(flight.getArrivalCity());
+        dto.setBaseFare(flight.getBaseFare());
+        dto.setTaxes(flight.getTaxes());
 
         if (flight.getAircraft() != null) {
             dto.setAircraftId(flight.getAircraft().getId());
@@ -48,6 +50,8 @@ public class FlightMapper implements EntityMapper<Flight, FlightDto> {
         flight.setArrivalTime(dto.getArrivalTime());
         flight.setDepartureCity(dto.getDepartureCity());
         flight.setArrivalCity(dto.getArrivalCity());
+        flight.setBaseFare(dto.getBaseFare() != null ? dto.getBaseFare() : java.math.BigDecimal.ZERO);
+        flight.setTaxes(dto.getTaxes() != null ? dto.getTaxes() : java.math.BigDecimal.ZERO);
         return flight;
     }
 }

@@ -9,5 +9,8 @@
     <include file="liquibase/sql/002_create_tables.sql" relativeToChangelogFile="false" />
     <include file="liquibase/sql/003_seed_roles.sql" relativeToChangelogFile="false" />
     <include file="liquibase/sql/004_seed_data.sql" relativeToChangelogFile="false" />
+    <include file="liquibase/sql/005_auth0_provisioning.sql" relativeToChangelogFile="false" />
+    <include file="liquibase/sql/006_remove_seed_accounts.sql" relativeToChangelogFile="false" />
+    <include file="liquibase/sql/007_flight_pricing.sql" relativeToChangelogFile="false" />
 
 </databaseChangeLog>

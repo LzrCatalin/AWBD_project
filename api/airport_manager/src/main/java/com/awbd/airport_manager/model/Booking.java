@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -31,6 +32,9 @@ public class Booking extends VersionedEntity {
     @OneToOne
     @JoinColumn(name = "seat_id")
     private Seat seat;
+
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
 
     private LocalDateTime bookingDate;
 }

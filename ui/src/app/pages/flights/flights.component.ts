@@ -1,5 +1,8 @@
 import {Component, inject, OnInit, signal} from '@angular/core';
+import {Router} from '@angular/router';
 import {FormsModule} from '@angular/forms';
+import {InputNumberModule} from 'primeng/inputnumber';
+import {PaginatorModule, PaginatorState} from 'primeng/paginator';
 import {ConfirmationService, MessageService} from 'primeng/api';
 import {TableLazyLoadEvent, TableModule} from 'primeng/table';
 import {ButtonModule} from 'primeng/button';
@@ -38,6 +41,8 @@ import {Pagination} from '../../shared/models/pagination.model';
     DatePickerModule,
     SelectModule,
     TooltipModule,
+    InputNumberModule,
+    PaginatorModule,
   ],
   templateUrl: './flights.component.html',
   styleUrl: './flights.component.scss',
@@ -75,6 +80,7 @@ export class FlightsComponent implements OnInit {
   seatsLoading = signal(false);
   bookingLoading = signal(false);
 
+  private router = inject(Router);
   private flightService = inject(FlightService);
   private aircraftService = inject(AircraftService);
   private gateService = inject(GateService);
@@ -88,7 +94,17 @@ export class FlightsComponent implements OnInit {
   ngOnInit(): void {
     if (this.roles.canManage()) {
       this.loadDropdowns();
+    } else {
+      // Passenger card view has no lazy table to trigger the initial load.
+      this.pageSize = 5;
+      this.loadFlights();
     }
+  }
+
+  onPage(event: PaginatorState): void {
+    this.currentPage = event.page ?? 0;
+    this.pageSize = event.rows ?? this.pageSize;
+    this.loadFlights();
   }
 
   private emptyForm(): FlightForm {
@@ -98,6 +114,8 @@ export class FlightsComponent implements OnInit {
       arrivalTime: '',
       departureCity: '',
       arrivalCity: '',
+      baseFare: null,
+      taxes: null,
       aircraftId: '',
       gateId: null,
     };
@@ -196,6 +214,8 @@ export class FlightsComponent implements OnInit {
       arrivalTime: flight.arrivalTime,
       departureCity: flight.departureCity,
       arrivalCity: flight.arrivalCity,
+      baseFare: flight.baseFare,
+      taxes: flight.taxes,
       aircraftId: flight.aircraftId,
       gateId: flight.gateId,
     };
@@ -204,6 +224,7 @@ export class FlightsComponent implements OnInit {
   }
 
   save(): void {
+    const isCreate = !this.editingId;
     const op$ = this.editingId
       ? this.flightService.update(this.editingId, this.form)
       : this.flightService.create(this.form);
@@ -216,6 +237,12 @@ export class FlightsComponent implements OnInit {
           summary: 'Saved',
           detail: `Flight ${this.form.flightNo} saved`,
         });
+        if (isCreate) {
+          // Surface the just-created flight at the top, regardless of its departure date.
+          this.currentPage = 0;
+          this.lastSortField = 'createdDate';
+          this.lastSortOrder = -1;
+        }
         this.loadFlights();
       },
       error: () => {
@@ -333,6 +360,30 @@ export class FlightsComponent implements OnInit {
       day: '2-digit', month: '2-digit', year: 'numeric',
       hour: '2-digit', minute: '2-digit',
     });
+  }
+
+  // ── Passenger card helpers ──────────────────────────────────────────────
+
+  goToCheckout(flight: Flight): void {
+    this.router.navigate(['/checkout', flight.id]);
+  }
+
+  total(flight: Flight): number {
+    return (flight.baseFare ?? 0) + (flight.taxes ?? 0);
+  }
+
+  cityCode(city: string): string {
+    return (city ?? '').trim().slice(0, 3).toUpperCase() || '—';
+  }
+
+  duration(flight: Flight): string {
+    if (!flight.departureTime || !flight.arrivalTime) return '—';
+    const ms = new Date(flight.arrivalTime).getTime() - new Date(flight.departureTime).getTime();
+    if (ms <= 0) return '—';
+    const mins = Math.round(ms / 60000);
+    const h = Math.floor(mins / 60);
+    const m = mins % 60;
+    return `${h}h ${m.toString().padStart(2, '0')}m`;
   }
 
 }

@@ -8,10 +8,13 @@ export interface Flight {
   arrivalTime: string;
   departureCity: string;
   arrivalCity: string;
+  baseFare: number;
+  taxes: number;
   aircraftId: string;
   gateId: string | null;
   aircraft: Aircraft | null;
   gate: Gate | null;
+  availableSeats: number | null;
 }
 
 export interface FlightForm {
@@ -20,6 +23,8 @@ export interface FlightForm {
   arrivalTime: string;
   departureCity: string;
   arrivalCity: string;
+  baseFare: number | null;
+  taxes: number | null;
   aircraftId: string;
   gateId: string | null;
 }

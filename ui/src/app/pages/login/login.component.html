@@ -1,30 +1,47 @@
-<div class="login-wrapper">
-  <div class="login-card">
+<div class="login-page">
+  <header class="login-topbar">
+    <a class="brand-mark" routerLink="/">SkyOps</a>
+    <a class="back-home" routerLink="/"><i class="pi pi-arrow-left"></i> Back to home</a>
+  </header>
 
-    <div class="login-header">
-      <i class="pi pi-send login-icon"></i>
-      <h1>Airport Manager</h1>
-      <p>Sign in to your account to continue</p>
-    </div>
-
-    <div class="login-actions">
-      <p-button
-        label="Continue with Google"
-        icon="pi pi-google"
-        styleClass="w-full"
-        [outlined]="true"
-        (onClick)="loginWithGoogle()"
-      />
-      <div class="divider">
-        <span>or</span>
+  <main class="login-layout">
+    <!-- Left: imagery / brand panel -->
+    <section class="login-visual">
+      <div class="login-visual-overlay"></div>
+      <div class="login-visual-copy">
+        <span class="eyebrow eyebrow-light">Welcome aboard</span>
+        <h1 class="display-title">Plan your next journey with SkyOps.</h1>
+        <p>Search routes, compare fares with taxes already visible, and manage every trip in one clean flow.</p>
+        <div class="trust-band">
+          <div class="trust-item">One-click secure access</div>
+          <div class="trust-item">Role-based redirects</div>
+          <div class="trust-item">Traveler profile ready</div>
+        </div>
       </div>
-      <p-button
-        label="Sign in"
-        icon="pi pi-sign-in"
-        styleClass="w-full"
-        (onClick)="login()"
-      />
-    </div>
+    </section>
 
-  </div>
+    <!-- Right: sign-in card -->
+    <section class="login-card">
+      <div class="login-card-head">
+        <i class="pi pi-send login-icon"></i>
+        <span class="eyebrow">Sign in</span>
+        <h2>Welcome back</h2>
+        <p>Continue to your SkyOps account.</p>
+      </div>
+
+      <div class="login-actions">
+        <button type="button" class="btn-pill btn-pill-primary login-btn" (click)="login()">
+          <i class="pi pi-envelope"></i> Continue with email
+        </button>
+        <div class="login-divider"><span>or</span></div>
+        <button type="button" class="btn-pill btn-pill-ghost login-btn" (click)="loginWithGoogle()">
+          <i class="pi pi-google"></i> Continue with Google
+        </button>
+      </div>
+
+      <p class="login-terms">
+        <i class="pi pi-lock"></i> Authentication is secured by Auth0.
+      </p>
+    </section>
+  </main>
 </div>

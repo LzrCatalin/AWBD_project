@@ -5,6 +5,7 @@ import com.awbd.airport_manager.util.search.enums.FilterOperation;
 import jakarta.persistence.criteria.*;
 
 import java.util.List;
+import java.util.UUID;
 
 public class DefaultPredicateBuilder {
 
@@ -16,8 +17,8 @@ public class DefaultPredicateBuilder {
         Path<Object> path = getNestedPath(root, field);
 
         return switch (op) {
-            case EQ -> cb.equal(path, value);
-            case NOT -> cb.notEqual(path, value);
+            case EQ -> cb.equal(path, coerce(path, value));
+            case NOT -> cb.notEqual(path, coerce(path, value));
             case LIKE -> {
                 if (value == null) yield null;
                 yield cb.like(path.as(String.class), "%" + value + "%");
@@ -54,15 +55,30 @@ public class DefaultPredicateBuilder {
             case IS_NOT_NULL -> cb.isNotNull(path);
             case IN -> {
                 if (!(value instanceof List)) yield null;
-                List<?> values = (List<?>) value;
+                List<?> values = ((List<?>) value).stream().map(v -> coerce(path, v)).toList();
                 yield values.isEmpty() ? null : path.in(values);
             }
             case NOT_IN -> {
                 if (!(value instanceof List)) yield null;
-                List<?> values = (List<?>) value;
+                List<?> values = ((List<?>) value).stream().map(v -> coerce(path, v)).toList();
                 yield values.isEmpty() ? null : cb.not(path.in(values));
             }
         };
+    }
+
+    /**
+     * JSON values arrive as Strings; convert them to the column's Java type where a raw
+     * comparison would otherwise fail (e.g. a UUID column compared against a String literal).
+     */
+    private static Object coerce(Path<?> path, Object value) {
+        if (value instanceof String s && path.getJavaType() == UUID.class) {
+            try {
+                return UUID.fromString(s);
+            } catch (IllegalArgumentException ignored) {
+                return value;
+            }
+        }
+        return value;
     }
 
     private static <T> Path<Object> getNestedPath(Root<T> root, String field) {

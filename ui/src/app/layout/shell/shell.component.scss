@@ -8,7 +8,7 @@ $transition: 0.2s ease;
 .shell-layout {
   display: flex;
   min-height: 100vh;
-  background: var(--p-surface-ground);
+  background: var(--bg);
 }
 
 // ── Sidebar ──────────────────────────────────────────────────────────────────
@@ -16,8 +16,8 @@ $transition: 0.2s ease;
 .sidebar {
   width: $sidebar-width;
   flex-shrink: 0;
-  background: var(--p-surface-card);
-  border-right: 1px solid var(--p-surface-border);
+  background: var(--surface-strong);
+  border-right: 1px solid var(--line);
   display: flex;
   flex-direction: column;
   position: sticky;
@@ -39,7 +39,7 @@ $transition: 0.2s ease;
   gap: 0.75rem;
   padding: 0 1.25rem;
   height: $navbar-height;
-  border-bottom: 1px solid var(--p-surface-border);
+  border-bottom: 1px solid var(--line);
   flex-shrink: 0;
   overflow: hidden;
 
@@ -119,8 +119,8 @@ $transition: 0.2s ease;
   justify-content: space-between;
   padding: 0 1.5rem;
   height: $navbar-height;
-  background: var(--p-surface-card);
-  border-bottom: 1px solid var(--p-surface-border);
+  background: var(--surface-strong);
+  border-bottom: 1px solid var(--line);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -143,4 +143,69 @@ $transition: 0.2s ease;
 .page-content {
   flex: 1;
   padding: 2rem;
+}
+
+// ── Passenger top-nav layout ──────────────────────────────────────────────────
+
+.traveler-layout {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at top right, rgba(49, 89, 212, 0.08), transparent 20rem),
+    linear-gradient(180deg, #fbfcfe 0%, #eef2f7 100%);
+}
+
+.traveler-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(18px);
+  background: rgba(250, 251, 252, 0.82);
+  border-bottom: 1px solid rgba(21, 38, 60, 0.08);
+}
+
+.traveler-header-row {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.traveler-nav {
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  margin-left: 1rem;
+
+  a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-weight: 600;
+    transition: color 0.15s ease;
+
+    i { font-size: 0.95rem; }
+
+    &:hover { color: var(--ink); }
+    &.active { color: var(--accent); }
+  }
+}
+
+.traveler-header .user-section {
+  margin-left: auto;
+
+  .user-name { color: var(--muted); font-size: 0.9rem; }
+}
+
+.traveler-content {
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+@media (max-width: 767.98px) {
+  .traveler-nav { gap: 1rem; margin-left: 0.5rem; }
+  .traveler-nav a span { display: none; }
 }

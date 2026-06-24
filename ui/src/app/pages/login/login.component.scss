@@ -1,48 +1,122 @@
-.login-wrapper {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+:host { display: block; }
+
+.login-page {
   min-height: 100vh;
-  background: var(--p-surface-ground);
-}
-
-.login-card {
-  width: 100%;
-  max-width: 400px;
-  padding: 2.5rem;
-  border-radius: 16px;
-  background: var(--p-surface-card);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  background:
+    radial-gradient(circle at top left, rgba(255, 205, 148, 0.34), transparent 24rem),
+    radial-gradient(circle at 82% 12%, rgba(71, 156, 194, 0.18), transparent 20rem),
+    linear-gradient(180deg, #fef8ef 0%, #f4f6fb 48%, #eef4f8 100%);
 }
 
-.login-header {
+.login-topbar {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.75rem;
-  text-align: center;
+  justify-content: space-between;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 1.4rem 1.5rem;
 
-  h1 {
-    font-size: 1.75rem;
-    font-weight: 700;
-    color: var(--p-text-color);
-    margin: 0;
+  .brand-mark { cursor: pointer; }
+
+  .back-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--muted);
+    font-weight: 600;
+    i { font-size: 0.85rem; }
+    &:hover { color: var(--ink); }
+  }
+}
+
+.login-layout {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.5rem;
+  align-items: stretch;
+  width: min(100%, 1180px);
+  margin: 0 auto;
+  padding: 0.5rem 1.5rem 3rem;
+}
+
+/* Left imagery panel */
+.login-visual {
+  position: relative;
+  overflow: hidden;
+  min-height: 30rem;
+  border-radius: 30px;
+  background-color: #d7dfeb;
+  background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  box-shadow: var(--shadow-lg);
+}
+
+.login-visual-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, rgba(21, 38, 60, 0.42), rgba(21, 38, 60, 0.78));
+}
+
+.login-visual-copy {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 1;
+  padding: 2.5rem;
+  color: #ffffff;
+
+  .display-title {
+    color: #ffffff;
+    font-size: clamp(2.2rem, 3.4vw, 3.2rem);
+    max-width: 16ch;
   }
 
   p {
-    font-size: 0.9rem;
-    color: var(--p-text-muted-color);
-    margin: 0;
+    margin: 1rem 0 0;
+    max-width: 42ch;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
   }
 }
 
-.login-icon {
-  font-size: 2.5rem;
-  color: var(--p-primary-color);
-  transform: rotate(45deg);
+.eyebrow-light { color: var(--gold); }
+
+.login-visual .trust-item {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.24);
+  color: #ffffff;
+}
+
+/* Right sign-in card */
+.login-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.8rem;
+  padding: 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.9));
+  box-shadow: var(--shadow-lg);
+}
+
+.login-card-head {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  .login-icon {
+    font-size: 2.2rem;
+    color: var(--accent);
+    transform: rotate(45deg);
+    margin-bottom: 0.6rem;
+  }
+
+  h2 { margin: 0; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.03em; }
+  p { margin: 0.2rem 0 0; color: var(--muted); }
 }
 
 .login-actions {
@@ -51,18 +125,37 @@
   gap: 1rem;
 }
 
-.divider {
+.login-btn {
+  width: 100%;
+  font-size: 0.98rem;
+}
+
+.login-divider {
   display: flex;
   align-items: center;
   gap: 1rem;
-  color: var(--p-text-muted-color);
-  font-size: 0.85rem;
+  color: var(--muted);
+  font-size: 0.82rem;
 
   &::before,
   &::after {
     content: '';
     flex: 1;
     height: 1px;
-    background: var(--p-surface-border);
+    background: var(--line);
   }
+}
+
+.login-terms {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+  i { font-size: 0.8rem; }
+}
+
+@media (max-width: 991.98px) {
+  .login-layout { grid-template-columns: 1fr; }
+  .login-visual { min-height: 18rem; }
 }

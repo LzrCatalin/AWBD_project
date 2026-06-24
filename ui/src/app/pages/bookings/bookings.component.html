@@ -5,10 +5,17 @@
 
   <div class="page-header">
     <div>
-      <h1>Bookings</h1>
-      <p>Manage flight reservations</p>
+      @if (roles.canManage()) {
+        <span class="eyebrow">Operations</span>
+        <h1>Bookings</h1>
+        <p>Manage flight reservations</p>
+      } @else {
+        <span class="eyebrow">Your trips</span>
+        <h1>My flights</h1>
+        <p>Review and manage your booked trips</p>
+      }
     </div>
-    <p-button label="New Booking" icon="pi pi-plus" (onClick)="openCreate()" />
+    <p-button [label]="roles.canManage() ? 'New Booking' : 'Book a flight'" icon="pi pi-plus" (onClick)="primaryAction()" />
   </div>
 
   <div class="search-bar">
@@ -26,47 +33,118 @@
     <p-button icon="pi pi-search" label="Search" (onClick)="onSearch()" />
   </div>
 
-  <p-table
-    [value]="bookings()"
-    [lazy]="true"
-    [paginator]="true"
-    [rows]="pageSize"
-    [totalRecords]="totalRecords()"
-    [loading]="loading()"
-    [rowsPerPageOptions]="[10, 25, 50]"
-    (onLazyLoad)="loadBookings($event)"
-    styleClass="p-datatable-gridlines"
-    [tableStyle]="{ 'min-width': '50rem' }"
-  >
-    <ng-template pTemplate="header">
-      <tr>
-        <th pSortableColumn="bookingNo">Booking No. <p-sortIcon field="bookingNo" /></th>
-        <th>Flight</th>
-        <th>Seat</th>
-        <th pSortableColumn="bookingDate">Date <p-sortIcon field="bookingDate" /></th>
-        <th style="width:90px">Actions</th>
-      </tr>
-    </ng-template>
+  @if (roles.canManage()) {
+    <p-table
+      [value]="bookings()"
+      [lazy]="true"
+      [paginator]="true"
+      [rows]="pageSize"
+      [totalRecords]="totalRecords()"
+      [loading]="loading()"
+      [rowsPerPageOptions]="[10, 25, 50]"
+      (onLazyLoad)="loadBookings($event)"
+      styleClass="p-datatable-gridlines"
+      [tableStyle]="{ 'min-width': '50rem' }"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="bookingNo">Booking No. <p-sortIcon field="bookingNo" /></th>
+          <th>Passenger</th>
+          <th>Flight</th>
+          <th>Seat</th>
+          <th>Price</th>
+          <th pSortableColumn="bookingDate">Date <p-sortIcon field="bookingDate" /></th>
+          <th style="width:90px">Actions</th>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="body" let-booking>
-      <tr>
-        <td><p-tag [value]="booking.bookingNo" severity="info" /></td>
-        <td class="text-sm">
-          {{ booking.flight ? booking.flight.flightNo + ' — ' + booking.flight.departureCity + ' → ' + booking.flight.arrivalCity : '—' }}
-        </td>
-        <td>{{ booking.seat ? booking.seat.seatNo + ' (' + booking.seat.type + ')' : '—' }}</td>
-        <td>{{ formatDate(booking.bookingDate) }}</td>
-        <td>
-          <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
-            pTooltip="Cancel booking" tooltipPosition="left" (onClick)="confirmDelete(booking)" />
-        </td>
-      </tr>
-    </ng-template>
+      <ng-template pTemplate="body" let-booking>
+        <tr>
+          <td><p-tag [value]="booking.bookingNo" severity="info" /></td>
+          <td class="text-sm">
+            @if (booking.account) {
+              <div class="passenger-cell">
+                <strong>{{ booking.account.firstName }} {{ booking.account.lastName }}</strong>
+                <span class="passenger-email">{{ booking.account.email }}</span>
+              </div>
+            } @else { — }
+          </td>
+          <td class="text-sm">
+            {{ booking.flight ? booking.flight.flightNo + ' — ' + booking.flight.departureCity + ' → ' + booking.flight.arrivalCity : '—' }}
+          </td>
+          <td>{{ booking.seat ? booking.seat.seatNo + ' (' + booking.seat.type + ')' : '—' }}</td>
+          <td><strong>{{ booking.totalPrice != null ? '€' + booking.totalPrice : '—' }}</strong></td>
+          <td>{{ formatDate(booking.bookingDate) }}</td>
+          <td>
+            <p-button icon="pi pi-times" [text]="true" [rounded]="true" severity="danger"
+              pTooltip="Cancel booking" tooltipPosition="left" (onClick)="confirmDelete(booking)" />
+          </td>
+        </tr>
+      </ng-template>
 
-    <ng-template pTemplate="emptymessage">
-      <tr><td colspan="5" class="empty-msg">No bookings found.</td></tr>
-    </ng-template>
-  </p-table>
+      <ng-template pTemplate="emptymessage">
+        <tr><td colspan="7" class="empty-msg">No bookings found.</td></tr>
+      </ng-template>
+    </p-table>
+  } @else {
+    <!-- ===================== PASSENGER: trip cards ===================== -->
+    @if (loading()) {
+      <div class="cards-loading"><i class="pi pi-spin pi-spinner"></i> Loading your trips…</div>
+    } @else if (bookings().length === 0) {
+      <div class="cards-empty">
+        <i class="pi pi-ticket"></i>
+        <p>You have no booked trips yet.</p>
+        <p-button label="Browse flights" (onClick)="primaryAction()" />
+      </div>
+    } @else {
+      <div class="trip-cards">
+        @for (booking of bookings(); track booking.id) {
+          <article class="trip-card">
+            <div class="tc-main">
+              <div class="tc-head">
+                <span class="tc-bookingno">#{{ booking.bookingNo }}</span>
+                @if (booking.flight) {
+                  <span class="status-badge status-scheduled">{{ booking.flight.flightNo }}</span>
+                }
+              </div>
+              @if (booking.flight) {
+                <h3 class="tc-title">{{ booking.flight.departureCity }} to {{ booking.flight.arrivalCity }}</h3>
+                <div class="tc-route">
+                  <span class="airport-pill">{{ cityCode(booking.flight.departureCity) }}</span>
+                  <i class="pi pi-arrow-right route-arrow"></i>
+                  <i class="pi pi-send"></i>
+                  <i class="pi pi-arrow-right route-arrow"></i>
+                  <span class="airport-pill">{{ cityCode(booking.flight.arrivalCity) }}</span>
+                </div>
+              }
+              <div class="tc-meta">
+                <div><span class="fc-label">Seat</span><strong>{{ booking.seat ? booking.seat.seatNo + ' (' + booking.seat.type + ')' : '—' }}</strong></div>
+                <div><span class="fc-label">Booked on</span><strong>{{ formatDate(booking.bookingDate) }}</strong></div>
+                @if (booking.flight?.departureTime) {
+                  <div><span class="fc-label">Departure</span><strong>{{ formatDate(booking.flight!.departureTime) }}</strong></div>
+                }
+              </div>
+            </div>
+
+            <div class="tc-aside">
+              <span class="fc-label">Total paid</span>
+              <span class="fc-price">{{ booking.totalPrice != null ? '€' + booking.totalPrice : '—' }}</span>
+              <p-button label="Cancel" icon="pi pi-times" [outlined]="true" severity="danger"
+                        (onClick)="confirmDelete(booking)" />
+            </div>
+          </article>
+        }
+      </div>
+      <div class="cards-pager">
+        <p-paginator
+          [rows]="pageSize"
+          [totalRecords]="totalRecords()"
+          [first]="currentPage * pageSize"
+          (onPageChange)="onPage($event)"
+        />
+      </div>
+    }
+  }
 
 </div>
 

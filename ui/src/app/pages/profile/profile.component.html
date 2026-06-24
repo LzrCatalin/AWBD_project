@@ -1,0 +1,76 @@
+<div class="page-head">
+  <span class="eyebrow">Your account</span>
+  <h1 class="section-title">Traveler profile</h1>
+</div>
+
+@if (loading()) {
+  <div class="panel-card">
+    <p-skeleton height="2rem" width="14rem" styleClass="mb-3" />
+    <p-skeleton height="1.2rem" width="20rem" styleClass="mb-2" />
+    <p-skeleton height="1.2rem" width="16rem" />
+  </div>
+} @else if (account(); as acc) {
+  <div class="profile-grid">
+    <div class="panel-card identity">
+      <div class="identity-head">
+        @if (auth.user$ | async; as user) {
+          <p-avatar [image]="user.picture ?? undefined" shape="circle" size="xlarge" />
+        }
+        <div>
+          <h2>{{ acc.firstName }} {{ acc.lastName }}</h2>
+          <p class="muted">{{ acc.email }}</p>
+          <div class="role-pills">
+            @for (role of acc.roles; track role) {
+              <span class="pill pill-accent">{{ role }}</span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <i class="pi pi-ticket"></i>
+          <span class="stat-value">{{ stats()?.flights ?? 0 }}</span>
+          <span class="stat-label">Total flights</span>
+        </div>
+        <div class="stat">
+          <i class="pi pi-map-marker"></i>
+          <span class="stat-value">{{ stats()?.destinations ?? 0 }}</span>
+          <span class="stat-label">Destinations</span>
+        </div>
+        <div class="stat">
+          <i class="pi pi-euro"></i>
+          <span class="stat-value">€{{ stats()?.spent ?? 0 }}</span>
+          <span class="stat-label">Total spent</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel-card">
+      <h3>Details</h3>
+      <dl class="detail-list">
+        <div>
+          <dt>First name</dt>
+          <dd>{{ acc.firstName }}</dd>
+        </div>
+        <div>
+          <dt>Last name</dt>
+          <dd>{{ acc.lastName }}</dd>
+        </div>
+        <div>
+          <dt>Email</dt>
+          <dd>{{ acc.email }}</dd>
+        </div>
+        <div>
+          <dt>Passport number</dt>
+          <dd>{{ acc.passportNo || '— not provided yet' }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+} @else {
+  <div class="panel-card empty">
+    <i class="pi pi-exclamation-circle"></i>
+    <p>We couldn't load your account right now. Please try again later.</p>
+  </div>
+}

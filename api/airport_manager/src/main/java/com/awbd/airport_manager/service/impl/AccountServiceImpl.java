@@ -24,6 +24,7 @@ public class AccountServiceImpl implements AccountService {
     private final AccountRepository accountRepository;
     private final AccountMapper accountMapper;
     private final PasswordEncoder passwordEncoder;
+    private final AccountProvisioningService accountProvisioningService;
 
     @Override
     public List<AccountDto> getAll() {
@@ -78,6 +79,11 @@ public class AccountServiceImpl implements AccountService {
                 accountRepository.findByEmail(email)
                         .orElseThrow(() -> new ResourceNotFoundException("Account", email))
         );
+    }
+
+    @Override
+    public AccountDto getCurrentAccount() {
+        return accountMapper.toDto(accountProvisioningService.resolveCurrentAccount());
     }
 
     private Account findById(UUID id) {

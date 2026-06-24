@@ -4,6 +4,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -19,8 +20,13 @@ public class BookingDto {
 
     private UUID accountId;
 
-    @NotNull(message = "Seat is mandatory")
+    // Optional — when omitted, the service auto-assigns an available seat for the flight.
     private UUID seatId;
+
+    // Optional checkout add-on (checked bag).
+    private boolean addCheckedBag;
+
+    private BigDecimal totalPrice;
 
     private LocalDateTime bookingDate;
 

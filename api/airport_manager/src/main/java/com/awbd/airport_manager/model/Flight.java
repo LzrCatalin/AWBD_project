@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -33,6 +34,12 @@ public class Flight extends VersionedEntity {
 
     @NotBlank(message = "Arrival city is mandatory")
     private String arrivalCity;
+
+    @Column(name = "base_fare", nullable = false)
+    private BigDecimal baseFare = BigDecimal.ZERO;
+
+    @Column(nullable = false)
+    private BigDecimal taxes = BigDecimal.ZERO;
 
     @ManyToOne
     @JoinColumn(name = "aircraft_id", nullable = false)

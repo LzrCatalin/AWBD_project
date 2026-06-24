@@ -9,6 +9,7 @@ import com.awbd.airport_manager.model.Gate;
 import com.awbd.airport_manager.repository.AircraftRepository;
 import com.awbd.airport_manager.repository.FlightRepository;
 import com.awbd.airport_manager.repository.GateRepository;
+import com.awbd.airport_manager.repository.SeatRepository;
 import com.awbd.airport_manager.service.impl.FlightServiceImpl;
 import com.awbd.airport_manager.util.pagination.PagedResponse;
 import com.awbd.airport_manager.util.search.dto.SearchDTO;
@@ -42,6 +43,8 @@ class FlightServiceImplTest {
     private AircraftRepository aircraftRepository;
     @Mock
     private GateRepository gateRepository;
+    @Mock
+    private SeatRepository seatRepository;
     @Mock
     private FlightMapper flightMapper;
 

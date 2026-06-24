@@ -22,4 +22,6 @@ public interface AccountService {
     void delete(UUID id);
 
     AccountDto getByEmail(String email);
+
+    AccountDto getCurrentAccount();
 }

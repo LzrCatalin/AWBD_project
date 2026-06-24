@@ -5,7 +5,6 @@ import com.awbd.airport_manager.service.api.AccountService;
 import com.awbd.airport_manager.util.pagination.PagedResponse;
 import com.awbd.airport_manager.util.search.dto.SearchDTO;
 import io.swagger.v3.oas.annotations.Operation;
-import com.awbd.airport_manager.util.security.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,8 +26,7 @@ public class AccountController {
     @GetMapping("/me")
     @Operation(summary = "Get the account of the currently authenticated user")
     public ResponseEntity<AccountDto> getMe() {
-        String email = SecurityUtils.getCurrentUserInfo().getEmail();
-        return ResponseEntity.ok(accountService.getByEmail(email));
+        return ResponseEntity.ok(accountService.getCurrentAccount());
     }
 
     @GetMapping

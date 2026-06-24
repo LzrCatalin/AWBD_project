@@ -1,69 +1,98 @@
-<div class="shell-layout" [class.collapsed]="collapsed()">
+@if (canManage()) {
+  <!-- ===================== STAFF / ADMIN: sidebar workflow ===================== -->
+  <div class="shell-layout" [class.collapsed]="collapsed()">
+    <aside class="sidebar">
+      <a class="brand" routerLink="/" pTooltip="Back to home" tooltipPosition="right">
+        <i class="pi pi-send brand-icon"></i>
+        @if (!collapsed()) {
+          <span class="brand-name">SkyOps</span>
+        }
+      </a>
 
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <div class="brand">
-      <i class="pi pi-send brand-icon"></i>
-      @if (!collapsed()) {
-        <span class="brand-name">Airport Manager</span>
-      }
+      <nav class="nav">
+        @for (item of navItems(); track item.route) {
+          <a
+            class="nav-item"
+            [routerLink]="item.route"
+            routerLinkActive="active"
+            [pTooltip]="collapsed() ? item.label : ''"
+            tooltipPosition="right"
+          >
+            <i [class]="item.icon"></i>
+            @if (!collapsed()) {
+              <span>{{ item.label }}</span>
+            }
+          </a>
+        }
+      </nav>
+    </aside>
+
+    <div class="shell-right">
+      <header class="navbar">
+        <p-button
+          icon="pi pi-bars"
+          [text]="true"
+          [rounded]="true"
+          severity="secondary"
+          (onClick)="toggleSidebar()"
+        />
+
+        @if (auth.user$ | async; as user) {
+          <div class="user-section">
+            <span class="user-name">{{ user.name }}</span>
+            <p-avatar [image]="user.picture ?? undefined" shape="circle" size="normal" />
+            <p-button
+              icon="pi pi-sign-out"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              pTooltip="Sign out"
+              (onClick)="logout()"
+            />
+          </div>
+        }
+      </header>
+
+      <main class="page-content">
+        <router-outlet />
+      </main>
     </div>
+  </div>
+} @else {
+  <!-- ===================== PASSENGER: clean top-nav ===================== -->
+  <div class="traveler-layout">
+    <header class="traveler-header">
+      <div class="traveler-header-row">
+        <a class="brand-mark" routerLink="/">SkyOps</a>
 
-    <nav class="nav">
-      @for (item of navItems(); track item.route) {
-        <a
-          class="nav-item"
-          [routerLink]="item.route"
-          routerLinkActive="active"
-          [pTooltip]="collapsed() ? item.label : ''"
-          tooltipPosition="right"
-        >
-          <i [class]="item.icon"></i>
-          @if (!collapsed()) {
-            <span>{{ item.label }}</span>
+        <nav class="traveler-nav">
+          @for (item of travelerItems; track item.route) {
+            <a [routerLink]="item.route" routerLinkActive="active">
+              <i [class]="item.icon"></i>
+              <span>{{ item.label }}</span>
+            </a>
           }
-        </a>
-      }
-    </nav>
-  </aside>
+        </nav>
 
-  <!-- Right side -->
-  <div class="shell-right">
-
-    <!-- Navbar -->
-    <header class="navbar">
-      <p-button
-        icon="pi pi-bars"
-        [text]="true"
-        [rounded]="true"
-        severity="secondary"
-        (onClick)="toggleSidebar()"
-      />
-
-      @if (auth.user$ | async; as user) {
-        <div class="user-section">
-          <span class="user-name">{{ user.name }}</span>
-          <p-avatar
-            [image]="user.picture ?? undefined"
-            shape="circle"
-            size="normal"
-          />
-          <p-button
-            icon="pi pi-sign-out"
-            [rounded]="true"
-            [text]="true"
-            severity="secondary"
-            pTooltip="Sign out"
-            (onClick)="logout()"
-          />
-        </div>
-      }
+        @if (auth.user$ | async; as user) {
+          <div class="user-section">
+            <span class="user-name">{{ user.name }}</span>
+            <p-avatar [image]="user.picture ?? undefined" shape="circle" size="normal" />
+            <p-button
+              icon="pi pi-sign-out"
+              [rounded]="true"
+              [text]="true"
+              severity="secondary"
+              pTooltip="Sign out"
+              (onClick)="logout()"
+            />
+          </div>
+        }
+      </div>
     </header>
 
-    <!-- Page content -->
-    <main class="page-content">
+    <main class="traveler-content">
       <router-outlet />
     </main>
-
   </div>
-</div>
+}

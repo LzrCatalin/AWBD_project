@@ -1,0 +1,153 @@
+<div class="landing">
+  <!-- Header -->
+  <header class="site-header">
+    <div class="container header-row">
+      <a class="brand-mark" (click)="scrollTo('top')">SkyOps</a>
+      <nav class="landing-nav">
+        <a (click)="go('/flights')">Book Flights</a>
+        <a (click)="go('/bookings')">My Flights</a>
+        <a (click)="scrollTo('destinations')">Destinations</a>
+        <a (click)="scrollTo('why')">Deals</a>
+        <button class="btn-pill btn-pill-ghost nav-signin" (click)="go('/flights')">Sign in</button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="container">
+    <!-- Hero -->
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="eyebrow">Book your next trip</span>
+        <h1 class="display-title">Fly out sooner. Pay clearly. Land somewhere worth it.</h1>
+        <p class="lead-copy">
+          Search routes, compare fares with taxes already visible, and book in a clean flow
+          without jumping between airline websites.
+        </p>
+        <div class="cta-row">
+          <button class="btn-pill btn-pill-primary" (click)="go('/flights')">Find flights</button>
+          <button class="btn-pill btn-pill-ghost" (click)="go('/bookings')">Open my trips</button>
+        </div>
+        <div class="trust-band">
+          <div class="trust-item">Prices shown upfront</div>
+          <div class="trust-item">Fast booking flow</div>
+          <div class="trust-item">Saved traveler details</div>
+        </div>
+      </div>
+
+      <div class="hero-visual">
+        <div class="spotlight">
+          <div class="spotlight-label">Featured route</div>
+          <div class="spotlight-route">Chisinau to Rome</div>
+          <div class="spotlight-meta">SkyLedger Air leaves 19 May, 15:10. From €174 with taxes already included.</div>
+          <div class="spotlight-tags">
+            <span class="pill pill-light">Taxes included</span>
+            <span class="pill pill-light">Simple checkout</span>
+            <span class="pill pill-light">Live inventory</span>
+          </div>
+        </div>
+
+        <div class="destination-mosaic">
+          <article class="destination-tile destination-tile-large"
+                   style="background-image: url('https://images.unsplash.com/photo-1529260830199-42c24126f198?auto=format&fit=crop&w=1200&q=80');">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+              <span class="destination-kicker">Weekend favorite</span>
+              <h3>Rome</h3>
+              <p>Golden-hour streets, late dinners, and easy city breaks.</p>
+            </div>
+          </article>
+          <article class="destination-tile"
+                   style="background-image: url('https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=900&q=80');">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+              <span class="destination-kicker">City escape</span>
+              <h3>Paris</h3>
+            </div>
+          </article>
+          <article class="destination-tile"
+                   style="background-image: url('https://images.unsplash.com/photo-1516483638261-f4dbaf036963?auto=format&fit=crop&w=900&q=80');">
+            <div class="destination-overlay"></div>
+            <div class="destination-content">
+              <span class="destination-kicker">Mediterranean pick</span>
+              <h3>Barcelona</h3>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Destinations -->
+    <section id="destinations" class="content-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Popular destinations</span>
+          <h2 class="section-title">Start with somewhere easy to say yes to</h2>
+        </div>
+        <p class="section-copy">
+          Short city breaks, direct routes, and visible fares make it easier to choose quickly.
+        </p>
+      </div>
+      <div class="card-grid">
+        <article class="offer-card">
+          <span class="pill pill-accent">Rome</span>
+          <h3>History, food, and a weekend that feels longer than it is.</h3>
+          <p>Best for quick breaks with direct departures and easy airport-to-center access.</p>
+        </article>
+        <article class="offer-card">
+          <span class="pill pill-sea">Paris</span>
+          <h3>Classic city energy, museums, late cafés, and easy multi-day plans.</h3>
+          <p>Good for travelers who want a familiar route and a predictable booking decision.</p>
+        </article>
+        <article class="offer-card">
+          <span class="pill pill-dark">Barcelona</span>
+          <h3>Beach, architecture, and warm evenings in one trip.</h3>
+          <p>Great when you want a city break that still feels relaxed.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Why -->
+    <section id="why" class="content-section">
+      <div class="section-heading">
+        <div>
+          <span class="eyebrow">Why travelers book here</span>
+          <h2 class="section-title">Less friction between search and checkout</h2>
+        </div>
+        <p class="section-copy">
+          The booking flow keeps the important decisions visible: route, total price, and traveler details.
+        </p>
+      </div>
+      <div class="card-grid">
+        <article class="journey-card">
+          <span class="pill pill-accent">Clear fares</span>
+          <h3>No guessing on the final number</h3>
+          <p>Base fare, taxes, and optional extras are visible before you confirm the booking.</p>
+        </article>
+        <article class="journey-card">
+          <span class="pill pill-sea">Fast flow</span>
+          <h3>Search, select, and finish without detours</h3>
+          <p>The booking page keeps the next step visible so the process stays short and readable.</p>
+        </article>
+        <article class="journey-card">
+          <span class="pill pill-dark">My flights</span>
+          <h3>Open trips again when you need them</h3>
+          <p>Booked routes stay easy to find from the dedicated My Flights page.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Closing CTA -->
+    <section class="closing-cta">
+      <div>
+        <span class="eyebrow" style="color: rgba(255,255,255,0.82)">Ready when you are</span>
+        <h2 class="section-title" style="color:#fff">Find your next flight in a couple of clicks</h2>
+      </div>
+      <button class="btn-pill btn-pill-primary" (click)="go('/flights')">Find flights</button>
+    </section>
+  </main>
+
+  <footer class="site-footer container">
+    <span class="brand-mark" style="font-size:1.4rem">SkyOps</span>
+    <p>© 2026 SkyOps · Built for AWBD.</p>
+  </footer>
+</div>
